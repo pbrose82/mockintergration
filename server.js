@@ -188,7 +188,25 @@ app.delete('/api/delete-material/:id', (req, res) => {
 });
 
 
+
 app.post('/api/clear-token', (req, res) => {
+    authTokenCache = { token: null, expiry: null };
+    res.json({ success: true, message: 'Authentication token cleared. Next API call will re-authenticate.' });
+});
+
+app.post('/api/clear-credentials', (req, res) => {
+    appConfig = {
+        email: '',
+        password: '',
+        tenant: 'productcaseelnlims',
+        materialType: 982,
+        producedBy: '700',
+        externalCodeFormat: 'SHORT_UUID'
+    };
+    authTokenCache = { token: null, expiry: null };
+    res.json({ success: true, message: 'Credentials and token cleared.' });
+});
+
     authTokenCache = { token: null, expiry: null };
     res.json({ success: true, message: 'Authentication token cleared. Next API call will re-authenticate.' });
 });

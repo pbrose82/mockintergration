@@ -89,10 +89,16 @@
                                 <button class="btn btn-sm btn-transfer" onclick="transferMaterial('<%= material.id %>')">
                                     📤 Transfer to Alchemy
                                 </button>
+                                <button class="btn btn-sm btn-secondary" onclick="deleteMaterial('<%= material.id %>')">
+                                    🗑️ Delete
+                                </button>
                             <% } else if (material.alchemyUrl) { %>
                                 <a href="<%= material.alchemyUrl %>" target="_blank" class="btn btn-sm btn-view">
                                     👁️ View in Alchemy
                                 </a>
+                                <button class="btn btn-sm btn-secondary" onclick="revertMaterial('<%= material.id %>')">
+                                    ↩️ Revert
+                                </button>
                             <% } %>
                         </td>
                     </tr>
@@ -113,6 +119,11 @@
                 <li>Real-time status tracking and error handling</li>
                 <li>Multi-tenant architecture support</li>
             </ul>
+            <% if (materials.some(m => m.transferStatus === 'Transferred' && m.alchemyCode === '-1.0')) { %>
+            <div style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border: 1px solid #fbbf24;">
+                <p style="color: #92400e; font-weight: 500;">💡 <strong>Tip:</strong> If you're seeing "-1.0" as codes, try reverting the materials and re-transferring them. Check the browser console and server logs for field mapping details.</p>
+            </div>
+            <% } %>
         </div>
 <%- include('partials/footer', {
     connectionStatus: config.configured ? 'Connected' : 'Not Connected'

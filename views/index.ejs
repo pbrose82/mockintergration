@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MockERP Pro - Demo Integration System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="demo-banner">
+        ⚠️ DEMO SOFTWARE - This is a mock system for demonstrating Alchemy integrations
+    </div>
+    
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>MockERP Pro</h1>
+                    <span class="tagline">Enterprise Resource Planning Demo</span>
+                </div>
+                <nav>
+                    <a href="/" class="active">Materials</a>
+                    <a href="/admin">Admin</a>
+                    <span class="status-indicator <%= config.configured ? 'connected' : 'disconnected' %>">
+                        <%= config.configured ? '● Connected to Alchemy' : '○ Not Connected' %>
+                    </span>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <% if (message) { %>
+        <div class="alert alert-success">
+            <%= message %>
+        </div>
+        <% } %>
+
+        <section class="controls-section">
+            <h2>Material Management</h2>
+            <button class="btn btn-primary" onclick="showAddMaterialForm()">+ Add New Material</button>
+        </section>
+
+        <div id="addMaterialForm" class="form-card" style="display: none;">
+            <h3>Add New Material</h3>
+            <form action="/api/add-material" method="POST">
+                <div class="form-group">
+                    <label for="tradeName">Trade Name</label>
+                    <input type="text" id="tradeName" name="tradeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Finished good">Finished good</option>
+                        <option value="Raw material">Raw material</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Packaging">Packaging</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="materialStatus">Material Status</label>
+                    <select id="materialStatus" name="materialStatus" required>
+                        <option value="">Select Status</option>
+                        <option value="Research">Research</option>
+                        <option value="Hypothetical">Hypothetical</option>
+                        <option value="Experimental">Experimental</option>
+                        <option value="Not Available">Not Available</option>
+                        <option value="Production Approved">Production Approved</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Material</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideAddMaterialForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <section class="materials-section">
+            <table class="materials-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Trade Name</th>
+                        <th>Category</th>
+                        <th>Material Status</th>
+                        <th>Transfer Status</th>
+                        <th>Alchemy Code</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% materials.forEach(material => { %>
+                    <tr data-material-id="<%= material.id %>">
+                        <td><%= material.id %></td>
+                        <td><%= material.tradeName %></td>
+                        <td><span class="badge badge-category"><%= material.category %></span></td>
+                        <td><span class="badge badge-status"><%= material.materialStatus %></span></td>
+                        <td>
+                            <span class="transfer-status <%= material.transferStatus === 'Transferred' ? 'transferred' : 'pending' %>">
+                                <%= material.transferStatus %>
+                            </span>
+                        </td>
+                        <td>
+                            <% if (material.alchemyCode) { %>
+                                <%= material.alchemyCode %>
+                            <% } else { %>
+                                <span class="text-muted">-</span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if (material.transferStatus === 'Pending') { %>
+                                <button class="btn btn-sm btn-transfer" onclick="transferMaterial('<%= material.id %>')">
+                                    Transfer to Alchemy
+                                </button>
+                            <% } else if (material.alchemyUrl) { %>
+                                <a href="<%= material.alchemyUrl %>" target="_blank" class="btn btn-sm btn-view">
+                                    View in Alchemy
+                                </a>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="info-section">
+            <h3>About This Demo</h3>
+            <p>This mock ERP system demonstrates how external business applications can integrate with Alchemy Cloud. 
+               It simulates typical material management workflows found in enterprise systems.</p>
+            <p><strong>Features demonstrated:</strong></p>
+            <ul>
+                <li>Material creation and management</li>
+                <li>API authentication and token management</li>
+                <li>Data synchronization between systems</li>
+                <li>Real-time status updates</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>MockERP Pro v2.3 - Demo Integration System | Not a real business application</p>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

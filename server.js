@@ -206,11 +206,6 @@ app.post('/api/clear-credentials', (req, res) => {
     authTokenCache = { token: null, expiry: null };
     res.json({ success: true, message: 'Credentials and token cleared.' });
 });
-
-    authTokenCache = { token: null, expiry: null };
-    res.json({ success: true, message: 'Authentication token cleared. Next API call will re-authenticate.' });
-});
-
 app.post('/api/test-connection', async (req, res) => {
     try {
         await getAlchemyToken();

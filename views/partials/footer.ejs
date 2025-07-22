@@ -2,10 +2,11 @@
 
     <footer>
         <div class="container">
-            <p>MockERP Pro v2.3 - Demo Integration System | Not a real business application</p>
+            <p style="font-size: 1rem; font-weight: 500;">MockERP Pro v2.3 - Demo Integration System</p>
+            <p style="color: rgba(255,255,255,0.7);">Not a real business application - For demonstration purposes only</p>
             <p class="footer-links">
-                <a href="https://github.com/your-username/mock-integration-app" target="_blank">GitHub</a> |
-                <a href="#" onclick="showAboutDialog(); return false;">About</a> |
+                <a href="https://github.com/your-username/mock-integration-app" target="_blank">📚 GitHub</a> |
+                <a href="#" onclick="showAboutDialog(); return false;">ℹ️ About</a> |
                 <span id="connection-status">Status: <%= typeof connectionStatus !== 'undefined' ? connectionStatus : 'Unknown' %></span>
             </p>
         </div>
@@ -15,10 +16,10 @@
     <div id="aboutDialog" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="closeAboutDialog()">&times;</span>
-            <h2>About MockERP Pro</h2>
+            <h2>🚀 About MockERP Pro</h2>
             <p><strong>Version:</strong> 2.3.0</p>
             <p>This is a demonstration application that shows how external business systems integrate with Alchemy Cloud.</p>
-            <h3>Key Features:</h3>
+            <h3>✨ Key Features:</h3>
             <ul>
                 <li>Simulates enterprise material management</li>
                 <li>Demonstrates API authentication patterns</li>
@@ -26,7 +27,9 @@
                 <li>Includes error handling and retry logic</li>
                 <li>Supports multiple Alchemy tenants</li>
             </ul>
-            <p><strong>Note:</strong> This is not real software and should not be used for actual business operations.</p>
+            <p style="margin-top: 1.5rem; padding: 1rem; background: #fee2e2; border-radius: 8px; color: #991b1b;">
+                <strong>⚠️ Note:</strong> This is not real software and should not be used for actual business operations.
+            </p>
         </div>
     </div>
 

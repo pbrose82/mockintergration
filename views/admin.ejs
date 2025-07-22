@@ -1,8 +1,7 @@
-
-<%- include('partials/header', {
-  pageTitle: 'MockERP Pro - Admin Configuration',
-  activePage: 'admin',
-  showStatus: false
+<% include('partials/header', { 
+    pageTitle: 'MockERP Pro - Admin Configuration',
+    activePage: 'admin',
+    showStatus: false
 }) %>
 
 <% if (message) { %>
@@ -12,7 +11,10 @@
 <% } %>
 
 <section class="admin-section">
-  <h2>🛠️ Integration Configuration</h2>
+  <div class="admin-header">
+    <h2>🛠️ Integration Configuration</h2>
+    <a href="/guide" class="btn btn-info guide-link">📘 User Guide</a>
+  </div>
 
   <div class="config-card">
     <h3>🔐 Setup Credentials</h3>
@@ -65,19 +67,10 @@
         <span><%= config.apiUrl %></span>
       </div>
     </div>
-
     <div class="button-group">
-      
-<div class="user-guide-banner" style="text-align: center; margin-bottom: 2rem;">
-  <a href="/guide" class="btn btn-lg btn-success" style="font-size: 1.2rem; padding: 0.75rem 1.5rem;">
-    📘 View Full User Guide
-  </a>
-</div>
-
       <button class="btn btn-primary" onclick="testConnection()">🔗 Test Connection</button>
       <button class="btn btn-secondary" onclick="changeTenant()">🔄 Quick Change Tenant</button>
       <button class="btn btn-secondary" onclick="clearToken()">🗑️ Clear Stored Token</button>
-      <button class="btn btn-danger" onclick="clearCredentials()">❌ Clear All Credentials</button>
     </div>
     <div id="connectionResult" class="connection-result"></div>
   </div>
@@ -87,34 +80,35 @@
     <div class="instructions">
       <p><strong>Getting Started:</strong></p>
       <ol>
-        <li>Enter your Alchemy credentials above</li>
+        <li>Enter your Alchemy credentials in the form above</li>
         <li>Set your tenant name (e.g., productcaseelnlims)</li>
-        <li>Set the Material Type ID</li>
+        <li>Find your Material Type ID in Alchemy Admin Panel → Material Types</li>
         <li>Save the configuration</li>
-        <li>Test the connection</li>
+        <li>Test the connection to verify everything works</li>
       </ol>
-      <p><strong>Other Actions:</strong></p>
+      <p><strong>Additional Features:</strong></p>
       <ul>
-        <li><strong>Quick Change Tenant</strong> – switch tenants without clearing credentials</li>
-        <li><strong>Clear Token</strong> – force re-authentication</li>
-        <li><strong>Revert/Delete Materials</strong> – manage local mock data</li>
+        <li><strong>🔄 Quick Change Tenant</strong> - Switch between tenants without re-entering credentials</li>
+        <li><strong>🗑️ Clear Stored Token</strong> - Force re-authentication on next API call</li>
+        <li><strong>↩️ Revert Materials</strong> - Reset transferred materials back to pending status</li>
+        <li><strong>🗑️ Delete Materials</strong> - Remove materials from the system</li>
       </ul>
     </div>
   </div>
 
   <div class="config-card">
-    <h3>📊 Integration Stats</h3>
+    <h3>📊 Integration Statistics</h3>
     <div class="stats-grid">
       <div class="stat-item">
         <h4>🔌 API Endpoint</h4>
         <p>Alchemy Cloud v2</p>
       </div>
       <div class="stat-item">
-        <h4>🔐 Auth Type</h4>
+        <h4>🔐 Authentication</h4>
         <p>JWT Token (Bearer)</p>
       </div>
       <div class="stat-item">
-        <h4>🔗 Integration</h4>
+        <h4>🔗 Integration Type</h4>
         <p>REST API</p>
       </div>
       <div class="stat-item">
@@ -123,8 +117,20 @@
       </div>
     </div>
   </div>
+
+  <div class="config-card">
+    <h3>✨ Demo Features</h3>
+    <ul class="feature-list">
+      <li>Simulates enterprise material management system</li>
+      <li>Demonstrates API authentication patterns</li>
+      <li>Shows real-time data synchronization</li>
+      <li>Includes error handling and retry logic</li>
+      <li>Provides direct links to created materials in Alchemy</li>
+      <li>Supports multiple tenants through configuration</li>
+    </ul>
+  </div>
 </section>
 
-<%- include('partials/footer', {
-  connectionStatus: config.email ? 'Configured' : 'Not Configured'
+<% include('partials/footer', {
+    connectionStatus: config.email ? 'Configured' : 'Not Configured'
 }) %>

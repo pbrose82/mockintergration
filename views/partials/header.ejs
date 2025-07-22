@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'MockERP Pro - Demo Integration System' %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <% if (typeof additionalStyles !== 'undefined') { %>
+        <%- additionalStyles %>
+    <% } %>
+</head>
+<body>
+    <div class="demo-banner">
+        ⚠️ DEMO SOFTWARE - This is a mock system for demonstrating Alchemy integrations
+    </div>
+    
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>MockERP Pro</h1>
+                    <span class="tagline">Enterprise Resource Planning Demo</span>
+                </div>
+                <nav>
+                    <a href="/" class="<%= typeof activePage !== 'undefined' && activePage === 'materials' ? 'active' : '' %>">Materials</a>
+                    <a href="/admin" class="<%= typeof activePage !== 'undefined' && activePage === 'admin' ? 'active' : '' %>">Admin</a>
+                    <% if (typeof showStatus !== 'undefined' && showStatus) { %>
+                        <span class="status-indicator <%= config.configured ? 'connected' : 'disconnected' %>">
+                            <%= config.configured ? '● Connected to Alchemy' : '○ Not Connected' %>
+                        </span>
+                    <% } %>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">

@@ -3,15 +3,52 @@
     activePage: 'admin',
     showStatus: false
 }) %>
+        <% if (message) { %>
+        <div class="alert alert-success">
+            <%= message %>
+        </div>
+        <% } %>
+        
         <section class="admin-section">
-            <h2>Integration Configuration</h2>
+            <h2>🛠️ Integration Configuration</h2>
             
             <div class="config-card">
-                <h3>Current Configuration</h3>
+                <h3>🔐 Setup Credentials</h3>
+                <form action="/api/save-credentials" method="POST">
+                    <div class="form-group">
+                        <label for="email">Alchemy Email</label>
+                        <input type="email" id="email" name="email" value="<%= config.email %>" placeholder="your-email@example.com">
+                        <small>Leave blank to keep existing value</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Alchemy Password</label>
+                        <input type="password" id="password" name="password" placeholder="<%= config.hasPassword ? '••••••••' : 'Enter password' %>">
+                        <small><%= config.hasPassword ? '✓ Password is set. Leave blank to keep existing.' : '⚠️ Password not yet configured.' %></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant">Tenant Name</label>
+                        <input type="text" id="tenant" name="tenant" value="<%= config.tenant %>" required>
+                        <small>Common tenants: productcaseelnlims, alchemy, borchers, vantage, hollandcolours</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="materialType">Material Type ID</label>
+                        <input type="number" id="materialType" name="materialType" value="<%= config.materialType %>" required>
+                        <small>Find this in Alchemy Admin Panel → Material Types</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
+                </form>
+            </div>
+
+            <div class="config-card">
+                <h3>📋 Current Configuration</h3>
                 <div class="config-info">
                     <div class="config-item">
                         <label>Alchemy Email:</label>
                         <span><%= config.email || 'Not configured' %></span>
+                    </div>
+                    <div class="config-item">
+                        <label>Password Status:</label>
+                        <span><%= config.hasPassword ? '✅ Configured' : '❌ Not configured' %></span>
                     </div>
                     <div class="config-item">
                         <label>Tenant:</label>
@@ -27,7 +64,11 @@
                     </div>
                 </div>
                 
-                <button class="btn btn-primary" onclick="testConnection()">Test Connection</button>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="testConnection()">🔗 Test Connection</button>
+                    <button class="btn btn-secondary" onclick="changeTenant()">🔄 Quick Change Tenant</button>
+                    <button class="btn btn-secondary" onclick="clearToken()">🗑️ Clear Stored Token</button>
+                </div>
                 <div id="connectionResult" class="connection-result"></div>
             </div>
 

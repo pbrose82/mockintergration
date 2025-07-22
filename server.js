@@ -177,8 +177,32 @@ app.post('/api/transfer', async (req, res) => {
       }
     );
 
-    const codeField = readResponse.data.fields.find(field => field.identifier === 'Code');
-    const alchemyCode = codeField?.rows[0]?.values[0]?.value || 'N/A';
+    // Debug: Log the entire response to see field structure
+    console.log('Read response fields:', JSON.stringify(readResponse.data.fields, null, 2));
+    
+    // Try multiple field identifiers where the code might be stored
+    const possibleCodeFields = ['Code', 'MaterialCode', 'Name', 'ProductCode', 'ItemCode'];
+    let codeField = null;
+    
+    for (const fieldName of possibleCodeFields) {
+      codeField = readResponse.data.fields.find(field => field.identifier === fieldName);
+      if (codeField) {
+        console.log(`Found potential code field: ${fieldName}`);
+        break;
+      }
+    }
+    
+    let alchemyCode = 'N/A';
+    if (codeField) {
+      // Handle different value structures
+      const value = codeField.rows[0]?.values[0]?.value;
+      alchemyCode = value ? String(value) : 'N/A';
+      console.log(`Found code in field '${codeField.identifier}':`, alchemyCode);
+    } else {
+      // If no code field found, log all available fields
+      console.log('Available fields:', readResponse.data.fields.map(f => f.identifier).join(', '));
+      console.log('Code field not found in response');
+    }
 
     // Update local material
     material.transferStatus = 'Transferred';
@@ -190,7 +214,12 @@ app.post('/api/transfer', async (req, res) => {
     res.json({
       success: true,
       alchemyCode,
-      alchemyUrl: material.alchemyUrl
+      alchemyUrl: material.alchemyUrl,
+      debug: {
+        materialId: alchemyMaterialId,
+        codeFieldFound: !!codeField,
+        fieldIdentifier: codeField?.identifier || 'none'
+      }
     });
 
   } catch (error) {
@@ -264,6 +293,39 @@ app.post('/api/change-tenant', (req, res) => {
 app.post('/api/clear-token', (req, res) => {
   authTokenCache = { token: null, expiry: null };
   res.json({ success: true, message: 'Authentication token cleared. Next API call will re-authenticate.' });
+});
+
+app.delete('/api/delete-material/:id', (req, res) => {
+  const { id } = req.params;
+  const index = mockMaterials.findIndex(m => m.id === id);
+  
+  if (index === -1) {
+    return res.status(404).json({ error: 'Material not found' });
+  }
+  
+  mockMaterials.splice(index, 1);
+  res.json({ success: true, message: 'Material deleted successfully' });
+});
+
+app.post('/api/revert-material/:id', (req, res) => {
+  const { id } = req.params;
+  const material = mockMaterials.find(m => m.id === id);
+  
+  if (!material) {
+    return res.status(404).json({ error: 'Material not found' });
+  }
+  
+  // Reset to pending status
+  material.transferStatus = 'Pending';
+  delete material.alchemyCode;
+  delete material.alchemyId;
+  delete material.alchemyUrl;
+  material.lastModified = new Date().toISOString();
+  
+  // Clear auth token cache to ensure fresh authentication
+  authTokenCache = { token: null, expiry: null };
+  
+  res.json({ success: true, message: 'Material reverted to pending status' });
 });
 
 // Error handling

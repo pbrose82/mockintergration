@@ -40,6 +40,7 @@
         <small>Find this in Alchemy Admin Panel → Material Types</small>
       </div>
       <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
+      <button type="button" class="btn btn-danger" onclick="clearCredentials()">🧹 Clear Credentials</button>
     </form>
   </div>
 
@@ -131,7 +132,25 @@
   </div>
 </section>
 
+<script>
+  function clearCredentials() {
+    if (confirm('Are you sure you want to clear saved credentials?')) {
+      fetch('/api/clear-credentials', { method: 'POST' })
+        .then(res => {
+          if (res.ok) {
+            location.reload();
+          } else {
+            alert('Failed to clear credentials.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('An error occurred while clearing credentials.');
+        });
+    }
+  }
+</script>
+
 <%- include('partials/footer', {
     connectionStatus: config.email ? 'Configured' : 'Not Configured'
 }) %>
-

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'MockERP Pro - Demo Integration System' %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
     <% if (typeof additionalStyles !== 'undefined') { %>
         <%- additionalStyles %>
@@ -22,8 +25,12 @@
                     <span class="tagline">Enterprise Resource Planning Demo</span>
                 </div>
                 <nav>
-                    <a href="/" class="<%= typeof activePage !== 'undefined' && activePage === 'materials' ? 'active' : '' %>">Materials</a>
-                    <a href="/admin" class="<%= typeof activePage !== 'undefined' && activePage === 'admin' ? 'active' : '' %>">Admin</a>
+                    <a href="/" class="<%= typeof activePage !== 'undefined' && activePage === 'materials' ? 'active' : '' %>">
+                        <span style="margin-right: 0.25rem;">📦</span> Materials
+                    </a>
+                    <a href="/admin" class="<%= typeof activePage !== 'undefined' && activePage === 'admin' ? 'active' : '' %>">
+                        <span style="margin-right: 0.25rem;">⚙️</span> Admin
+                    </a>
                     <% if (typeof showStatus !== 'undefined' && showStatus) { %>
                         <span class="status-indicator <%= config.configured ? 'connected' : 'disconnected' %>">
                             <%= config.configured ? '● Connected to Alchemy' : '○ Not Connected' %>

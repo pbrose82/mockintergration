@@ -1,0 +1,50 @@
+
+<%- include('partials/header', {
+  pageTitle: 'Alchemy Integration User Guide',
+  activePage: 'guide',
+  showStatus: false
+}) %>
+
+<section class="guide-section">
+  <h1>📘 Alchemy Integration – User Guide</h1>
+
+  <h2>1. 🔐 Setup</h2>
+  <ul>
+    <li>Go to the <a href="/admin">Admin page</a></li>
+    <li>Enter your Alchemy Email, Password, Tenant, and Material Type ID</li>
+    <li>Click <strong>Save Configuration</strong></li>
+    <li>Click <strong>Test Connection</strong> to ensure credentials are valid</li>
+    <li>Optional: Use <strong>Clear Token</strong> to force re-authentication, or <strong>Clear All Credentials</strong> to reset everything</li>
+  </ul>
+
+  <h2>2. 🧪 Transferring Materials</h2>
+  <ul>
+    <li>Visit the <a href="/">Home page</a> to view mock materials</li>
+    <li>Click <strong>Transfer</strong> next to a material</li>
+    <li>The app will create a material in Alchemy and read back its Code</li>
+    <li>After success, the Code and link to the record will be updated</li>
+  </ul>
+
+  <h2>3. ↩️ Reverting & 🗑️ Deleting</h2>
+  <ul>
+    <li>Use <strong>Revert</strong> to reset a transferred material back to <em>Pending</em></li>
+    <li>Use <strong>Delete</strong> to remove a material completely from the local list</li>
+  </ul>
+
+  <h2>4. 🛠️ Troubleshooting</h2>
+  <ul>
+    <li><strong>Code shows as "-1.0":</strong> Alchemy may not have finished indexing. Try again after 2 seconds.</li>
+    <li><strong>403 / 401 Errors:</strong> Recheck your credentials and tenant name</li>
+    <li><strong>500 Errors:</strong> See browser console and logs in terminal for exact cause</li>
+  </ul>
+
+  <h2>5. 🔍 Field Mapping Reference</h2>
+  <ul>
+    <li>Mapped fields: <code>TradeName</code>, <code>Category</code>, <code>MaterialStatus</code>, <code>ProducedBy</code>, <code>ExternalCode</code></li>
+    <li>The system assumes these fields exist in your Material Type configuration</li>
+  </ul>
+</section>
+
+<%- include('partials/footer', {
+  connectionStatus: config?.email ? 'Configured' : 'Not Configured'
+}) %>

@@ -330,3 +330,11 @@ async function revertMaterial(materialId) {
         showNotification(`Revert failed: ${error.message}`, 'error');
     }
 }
+
+
+function clearCredentials() {
+  fetch('/api/clear-credentials', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => alert(data.message))
+    .catch(err => alert('Error clearing credentials: ' + err.message));
+}

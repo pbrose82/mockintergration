@@ -125,10 +125,9 @@ app.post('/api/transfer', async (req, res) => {
         });
 
         const materialId = createRes.data.materialId;
+        await new Promise(resolve => setTimeout(resolve, 250));
+        console.log(`Waiting before fetching Code for material ID ${materialId}`);
         if (!materialId) throw new Error('Alchemy did not return a materialId');
-        // Wait for indexing before reading fields like Code
-        await new Promise(resolve => setTimeout(resolve, 500));
-
 
         // Read Code field
         const readRes = await axios.get(`https://core-production.alchemy.cloud/core/api/v2/read-record?id=${materialId}`, {
@@ -160,6 +159,32 @@ app.post('/api/save-credentials', (req, res) => {
     authTokenCache = { token: null, expiry: null };
     req.session.adminMessage = 'Configuration saved successfully!';
     res.redirect('/admin');
+});
+
+
+app.post('/api/revert-material/:id', (req, res) => {
+    const { id } = req.params;
+    const material = mockMaterials.find(m => m.id === id);
+    if (!material) {
+        return res.status(404).json({ error: 'Material not found' });
+    }
+    material.transferStatus = 'Pending';
+    delete material.alchemyCode;
+    delete material.alchemyId;
+    delete material.alchemyUrl;
+    material.lastModified = new Date().toISOString();
+    authTokenCache = { token: null, expiry: null };
+    res.json({ success: true, message: 'Material reverted to pending status' });
+});
+
+app.delete('/api/delete-material/:id', (req, res) => {
+    const { id } = req.params;
+    const index = mockMaterials.findIndex(m => m.id === id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Material not found' });
+    }
+    mockMaterials.splice(index, 1);
+    res.json({ success: true, message: 'Material deleted successfully' });
 });
 
 app.post('/api/test-connection', async (req, res) => {

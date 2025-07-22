@@ -1,188 +1,333 @@
-// Load environment variables from a .env file
-require('dotenv').config();
-const axios = require('axios');
-const { v4: uuidv4 } = require('uuid'); // To generate unique IDs
+// Frontend JavaScript for MockERP Pro
 
-// --- CONFIGURATION ---
-const { ALCHEMY_EMAIL, ALCHEMY_PASSWORD } = process.env;
-const ALCHEMY_TENANT = process.env.ALCHEMY_TENANT || 'productcaseelnlims'; // Default tenant
-const BASE_URL_V3 = 'https://core-production.alchemy.cloud/core/api/v3';
-const BASE_URL_V2_SIGNIN = 'https://core-production.alchemy.cloud/core/api/v2/sign-in';
-
-// This is the ID for the Material Type you are creating (e.g., Raw Material).
-// This was '982' in your original Apps Script. Update if this has changed.
-const MATERIAL_TYPE_ID = 982;
-
-// --- END CONFIGURATION ---
-
-/**
- * A simple helper function to pause execution.
- * @param {number} ms - The number of milliseconds to wait.
- */
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-/**
- * Authenticates with Alchemy and returns a bearer token.
- */
-async function getAuthToken() {
-  console.log(`Authenticating for user ${ALCHEMY_EMAIL} on tenant ${ALCHEMY_TENANT}...`);
-  const payload = { email: ALCHEMY_EMAIL, password: ALCHEMY_PASSWORD };
-
-  try {
-    const response = await axios.post(BASE_URL_V2_SIGNIN, payload);
-    const authData = response.data;
-
-    // Find the correct token for the specified tenant
-    let token;
-    if (authData.tenant === ALCHEMY_TENANT) {
-      token = authData.accessToken;
-    } else {
-      const tenantTokenInfo = authData.tokens.find(t => t.tenant === ALCHEMY_TENANT);
-      token = tenantTokenInfo ? tenantTokenInfo.accessToken : null;
-    }
-
-    if (!token) {
-      throw new Error(`Could not find a token for tenant '${ALCHEMY_TENANT}'. Please check your access rights.`);
-    }
-
-    console.log('✅ Authentication successful.');
-    return token;
-  } catch (error) {
-    const errorMsg = error.response ? `${error.response.status} - ${JSON.stringify(error.response.data)}` : error.message;
-    console.error(`❌ Authentication failed: ${errorMsg}`);
-    throw error; // Stop the script if authentication fails
-  }
+// Show/hide add material form
+function showAddMaterialForm() {
+    document.getElementById('addMaterialForm').style.display = 'block';
+    document.getElementById('tradeName').focus();
 }
 
-/**
- * STEP 1: Creates a new material in Alchemy WITHOUT a code.
- * @param {string} token - The authentication token.
- * @param {object} materialData - The data for the new material.
- * @returns {string} The new record's ID.
- */
-async function createMaterial(token, materialData) {
-  console.log(`Attempting to create material: '${materialData.TradeName}'...`);
-  const createUrl = `${BASE_URL_V3}/records`;
-  const headers = { 'Authorization': `Bearer ${token}` };
-
-  // Generate a unique external code to prevent accidental duplicate submissions
-  const externalCode = `MOCK-${uuidv4().split('-')[0].toUpperCase()}`;
-
-  // Build the payload. NOTICE: We do NOT include the 'Code' field.
-  // The system will generate it for us.
-  const fieldsPayload = [
-    { identifier: "TradeName", value: materialData.TradeName },
-    { identifier: "Category", value: materialData.Category },
-    { identifier: "MaterialStatus", value: materialData.MaterialStatus },
-    { identifier: "ExternalCode", value: externalCode },
-  ].filter(field => field.value != null); // Filter out any fields that are not set
-
-  const payload = {
-    recordTemplateId: MATERIAL_TYPE_ID,
-    fields: fieldsPayload,
-  };
-
-  try {
-    const response = await axios.post(createUrl, payload, { headers });
-    const recordId = response.data.id;
-
-    if (!recordId) {
-      throw new Error("API response did not include a record ID.");
-    }
-
-    console.log(`✅ Successfully created record with ID: ${recordId}`);
-    return recordId;
-  } catch (error) {
-    const errorMsg = error.response ? `${error.response.status} - ${JSON.stringify(error.response.data)}` : error.message;
-    console.error(`❌ Failed to create material: ${errorMsg}`);
-    // Provide a helpful hint if the error is about the template ID
-    if (error.response?.data?.message?.includes('record template')) {
-        console.error(`💡 HINT: The Material Type ID (${MATERIAL_TYPE_ID}) might be incorrect for this tenant.`);
-    }
-    throw error;
-  }
+function hideAddMaterialForm() {
+    document.getElementById('addMaterialForm').style.display = 'none';
+    document.getElementById('addMaterialForm').querySelector('form').reset();
 }
 
-/**
- * STEP 2: Reads the record to get the server-generated 'Code'.
- * @param {string} token - The authentication token.
- * @param {string} recordId - The ID of the record to read.
- * @returns {string|null} The generated code, or null if not found.
- */
-async function getRecordCode(token, recordId) {
-  // Wait a couple of seconds to ensure the record is fully indexed before we read it
-  await sleep(2000);
+// --- THIS IS THE UPDATED FUNCTION ---
+// Transfer material to Alchemy
+async function transferMaterial(materialId) {
+    const row = document.querySelector(`tr[data-material-id="${materialId}"]`);
+    const button = row.querySelector('.btn-transfer');
 
-  console.log(`Reading back the generated code for record ID: ${recordId}...`);
-  const readUrl = `${BASE_URL_V3}/records/${recordId}/fields`;
-  const headers = { 'Authorization': `Bearer ${token}` };
+    // Show loading state
+    button.disabled = true;
+    button.innerHTML = '🔄 Transferring... <span class="spinner"></span>';
 
-  try {
-    const response = await axios.get(readUrl, { headers });
-    const fields = response.data.fields || [];
-    const codeField = fields.find(f => f.identifier === 'Code');
-
-    if (codeField?.rows?.[0]?.values?.[0]?.value) {
-      const generatedCode = codeField.rows[0].values[0].value;
-      console.log(`✅ Found generated code: ${generatedCode}`);
-      return generatedCode;
-    } else {
-      console.warn("⚠️ Could not find 'Code' field in the response. The record might still be processing.");
-      return null;
-    }
-  } catch (error) {
-    const errorMsg = error.response ? `${error.response.status} - ${JSON.stringify(error.response.data)}` : error.message;
-    console.error(`❌ Failed to read record code: ${errorMsg}`);
-    throw error;
-  }
-}
-
-/**
- * Main function to run the entire integration process.
- */
-async function main() {
-  console.log("--- Starting Alchemy Material Creation Script ---");
-
-  // Example data to be transferred. You can modify this or load it from a file.
-  const materialsToCreate = [
-    { TradeName: "Demo Polymer A-100", Category: "Raw material", MaterialStatus: "Research" },
-    { TradeName: "Finished Product B-200", Category: "Finished good", MaterialStatus: "Production Approved" },
-  ];
-
-  let authToken;
-  try {
-    // 1. Get the authentication token once for the whole session
-    authToken = await getAuthToken();
-  } catch (error) {
-    console.error("\n🛑 A critical error stopped the script at authentication. Cannot proceed.");
-    return; // Exit if we can't authenticate
-  }
-
-  // 2. Loop through your data and process each material
-  for (const material of materialsToCreate) {
-    console.log("-".repeat(50)); // Separator for clarity
     try {
-      // STEP 1: Create the material and get its ID
-      const newRecordId = await createMaterial(authToken, material);
+        // NEW: Get the material data directly from the table row's cells.
+        // (Assumes standard column order: TradeName, Category, Status)
+        const materialData = {
+            TradeName: row.cells[1].textContent.trim(),
+            Category: row.cells[2].textContent.trim(),
+            MaterialStatus: row.cells[3].textContent.trim()
+        };
 
-      // STEP 2: Use the ID to read the generated code
-      if (newRecordId) {
-        const generatedCode = await getRecordCode(authToken, newRecordId);
+        // NEW: Send the FULL materialData object to the backend.
+        const response = await fetch('/api/transfer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(materialData) // We send the data, not just the ID
+        });
 
-        if (generatedCode) {
-          console.log(`🎉 SUCCESS! Material '${material.TradeName}' created with Code: ${generatedCode}`);
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Update the UI (this part remains the same)
+            const statusCell = row.querySelector('.transfer-status');
+            statusCell.textContent = 'Transferred';
+            statusCell.classList.remove('pending');
+            statusCell.classList.add('transferred');
+
+            // Update Alchemy code
+            const codeCell = row.cells[5];
+            codeCell.innerHTML = data.alchemyCode;
+
+            // Replace button with link
+            const actionCell = row.cells[6];
+            actionCell.innerHTML = `
+                <a href="${data.alchemyUrl}" target="_blank" class="btn btn-sm btn-view">👁️ View in Alchemy</a>
+                <button class="btn btn-sm btn-secondary" onclick="revertMaterial('${materialId}')" title="This is a mock action">↩️ Revert</button>
+            `;
+
+            // Show success message
+            showNotification(`Material successfully transferred! Code: ${data.alchemyCode}`, 'success');
         } else {
-          console.warn(`⚠️ Creation seemed to work (ID: ${newRecordId}), but could not retrieve the final code.`);
+            throw new Error(data.message || 'Transfer failed');
         }
-      }
     } catch (error) {
-      // This catches errors for a single material, allowing the loop to continue to the next one
-      console.error(`Skipping material '${material.TradeName}' due to an error during its processing.`);
+        console.error('Transfer error:', error);
+        button.disabled = false;
+        button.innerHTML = '📤 Transfer to Alchemy';
+        showNotification(`Transfer failed: ${error.message}`, 'error');
     }
-  }
+}
+// --- END OF UPDATED FUNCTION ---
 
-  console.log("\n--- Script finished. ---");
+
+// Test connection (admin page)
+async function testConnection() {
+    const button = event.target;
+    const resultDiv = document.getElementById('connectionResult');
+
+    button.disabled = true;
+    button.innerHTML = 'Testing... <span class="spinner"></span>';
+    resultDiv.style.display = 'none';
+
+    try {
+        const response = await fetch('/api/test-connection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        resultDiv.style.display = 'block';
+
+        if (response.ok && data.success) {
+            resultDiv.className = 'connection-result success';
+            resultDiv.textContent = '✓ ' + data.message;
+        } else {
+            resultDiv.className = 'connection-result error';
+            resultDiv.textContent = '✗ ' + data.message;
+        }
+    } catch (error) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'connection-result error';
+        resultDiv.textContent = '✗ Connection test failed: ' + error.message;
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Test Connection';
+    }
 }
 
-// Run the main function
-main();
+// Change tenant quickly
+async function changeTenant() {
+    const tenantSpan = Array.from(document.querySelectorAll('.config-item')).find(item =>
+        item.querySelector('label')?.textContent.includes('Tenant:')
+    )?.querySelector('span');
+    const currentTenant = tenantSpan ? tenantSpan.textContent : 'unknown';
+    const newTenant = prompt(`Current tenant: ${currentTenant}\n\nEnter new tenant name:`);
+
+    if (newTenant && newTenant.trim()) {
+        try {
+            const response = await fetch('/api/change-tenant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tenant: newTenant.trim() })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification(data.message || 'Failed to change tenant', 'error');
+            }
+        } catch (error) {
+            showNotification('Error changing tenant: ' + error.message, 'error');
+        }
+    }
+}
+
+// Clear stored authentication token
+async function clearToken() {
+    if (confirm('Clear the stored authentication token? Next API call will re-authenticate.')) {
+        try {
+            const response = await fetch('/api/clear-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showNotification(data.message, 'success');
+            } else {
+                showNotification('Failed to clear token', 'error');
+            }
+        } catch (error) {
+            showNotification('Error clearing token: ' + error.message, 'error');
+        }
+    }
+}
+
+// Show notification with modern styling
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type}`;
+    notification.innerHTML = `
+        <span style="font-size: 1.25rem; margin-right: 0.5rem;">
+            ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
+        </span>
+        ${message}
+    `;
+    notification.style.position = 'fixed';
+    notification.style.top = '80px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '1001';
+    notification.style.minWidth = '300px';
+    notification.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    notification.style.animation = 'slideInRight 0.3s ease';
+
+    document.body.appendChild(notification);
+
+    // Fade in
+    notification.style.opacity = '0';
+    setTimeout(() => {
+        notification.style.transition = 'opacity 0.3s';
+        notification.style.opacity = '1';
+    }, 10);
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(20px)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 5000);
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl+N or Cmd+N to add new material
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        const addForm = document.getElementById('addMaterialForm');
+        if (addForm) {
+            showAddMaterialForm();
+        }
+    }
+
+    // Escape to close forms
+    if (e.key === 'Escape') {
+        const addForm = document.getElementById('addMaterialForm');
+        if (addForm && addForm.style.display !== 'none') {
+            hideAddMaterialForm();
+        }
+    }
+});
+
+// Auto-refresh data every 30 seconds (for demo purposes)
+if (window.location.pathname === '/') {
+    setInterval(() => {
+        // In a real app, this would fetch updated data via AJAX
+        console.log('Auto-refresh check (in real app, would check for updates)');
+    }, 30000);
+}
+
+// Add some demo interactivity
+document.addEventListener('DOMContentLoaded', () => {
+    // Highlight rows on hover
+    const rows = document.querySelectorAll('.materials-table tbody tr');
+    rows.forEach(row => {
+        row.addEventListener('mouseenter', () => {
+            row.style.transform = 'translateX(2px)';
+            row.style.transition = 'transform 0.2s';
+        });
+        row.addEventListener('mouseleave', () => {
+            row.style.transform = 'translateX(0)';
+        });
+    });
+
+    // Add click-to-copy for Alchemy codes
+    const codeCells = document.querySelectorAll('.materials-table td:nth-child(6)');
+    codeCells.forEach(cell => {
+        if (cell.textContent.trim() !== '-') {
+            cell.style.cursor = 'pointer';
+            cell.title = 'Click to copy';
+            cell.addEventListener('click', () => {
+                navigator.clipboard.writeText(cell.textContent.trim());
+                showNotification('Code copied to clipboard!', 'success');
+            });
+        }
+    });
+});
+
+// About dialog functions
+function showAboutDialog() {
+    document.getElementById('aboutDialog').style.display = 'flex';
+}
+
+function closeAboutDialog() {
+    document.getElementById('aboutDialog').style.display = 'none';
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('aboutDialog');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Delete material
+async function deleteMaterial(materialId) {
+    if (!confirm('Are you sure you want to delete this material?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/delete-material/${materialId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification('Material deleted successfully!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            throw new Error(data.message || 'Delete failed');
+        }
+    } catch (error) {
+        showNotification(`Delete failed: ${error.message}`, 'error');
+    }
+}
+
+// Revert material to pending status
+async function revertMaterial(materialId) {
+    if (!confirm('Revert this material to pending status? This will remove its Alchemy code.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/revert-material/${materialId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification('Material reverted to pending status!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            throw new Error(data.message || 'Revert failed');
+        }
+    } catch (error) {
+        showNotification(`Revert failed: ${error.message}`, 'error');
+    }
+}

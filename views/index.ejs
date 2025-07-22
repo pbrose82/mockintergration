@@ -11,16 +11,18 @@
         <% } %>
 
         <section class="controls-section">
-            <h2>Material Management</h2>
-            <button class="btn btn-primary" onclick="showAddMaterialForm()">+ Add New Material</button>
+            <h2>📊 Material Management Dashboard</h2>
+            <button class="btn btn-primary" onclick="showAddMaterialForm()">
+                <span style="font-size: 1.2rem;">+</span> Add New Material
+            </button>
         </section>
 
         <div id="addMaterialForm" class="form-card" style="display: none;">
-            <h3>Add New Material</h3>
+            <h3>✨ Add New Material</h3>
             <form action="/api/add-material" method="POST">
                 <div class="form-group">
                     <label for="tradeName">Trade Name</label>
-                    <input type="text" id="tradeName" name="tradeName" required>
+                    <input type="text" id="tradeName" name="tradeName" placeholder="e.g., Polymer X-200" required>
                 </div>
                 <div class="form-group">
                     <label for="category">Category</label>
@@ -44,8 +46,8 @@
                     </select>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Add Material</button>
-                    <button type="button" class="btn btn-secondary" onclick="hideAddMaterialForm()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">✅ Add Material</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideAddMaterialForm()">❌ Cancel</button>
                 </div>
             </form>
         </div>
@@ -85,11 +87,11 @@
                         <td>
                             <% if (material.transferStatus === 'Pending') { %>
                                 <button class="btn btn-sm btn-transfer" onclick="transferMaterial('<%= material.id %>')">
-                                    Transfer to Alchemy
+                                    📤 Transfer to Alchemy
                                 </button>
                             <% } else if (material.alchemyUrl) { %>
                                 <a href="<%= material.alchemyUrl %>" target="_blank" class="btn btn-sm btn-view">
-                                    View in Alchemy
+                                    👁️ View in Alchemy
                                 </a>
                             <% } %>
                         </td>
@@ -100,15 +102,16 @@
         </section>
 
         <div class="info-section">
-            <h3>About This Demo</h3>
+            <h3>🚀 About This Demo</h3>
             <p>This mock ERP system demonstrates how external business applications can integrate with Alchemy Cloud. 
                It simulates typical material management workflows found in enterprise systems.</p>
             <p><strong>Features demonstrated:</strong></p>
             <ul>
-                <li>Material creation and management</li>
-                <li>API authentication and token management</li>
-                <li>Data synchronization between systems</li>
-                <li>Real-time status updates</li>
+                <li>Material creation and management with real-time updates</li>
+                <li>Secure API authentication and token management</li>
+                <li>Bi-directional data synchronization between systems</li>
+                <li>Real-time status tracking and error handling</li>
+                <li>Multi-tenant architecture support</li>
             </ul>
         </div>
 <%- include('partials/footer', {

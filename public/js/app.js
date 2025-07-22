@@ -32,6 +32,11 @@ async function transferMaterial(materialId) {
         const data = await response.json();
         
         if (response.ok && data.success) {
+            // Log debug info if available
+            if (data.debug) {
+                console.log('Transfer debug info:', data.debug);
+            }
+            
             // Update the UI
             const statusCell = row.querySelector('.transfer-status');
             statusCell.textContent = 'Transferred';
@@ -44,7 +49,10 @@ async function transferMaterial(materialId) {
             
             // Replace button with link
             const actionCell = row.cells[6];
-            actionCell.innerHTML = `<a href="${data.alchemyUrl}" target="_blank" class="btn btn-sm btn-view">👁️ View in Alchemy</a>`;
+            actionCell.innerHTML = `
+                <a href="${data.alchemyUrl}" target="_blank" class="btn btn-sm btn-view">👁️ View in Alchemy</a>
+                <button class="btn btn-sm btn-secondary" onclick="revertMaterial('${materialId}')">↩️ Revert</button>
+            `;
             
             // Add success animation to row
             row.style.animation = 'none';
@@ -53,7 +61,7 @@ async function transferMaterial(materialId) {
             }, 10);
             
             // Show success message
-            showNotification('Material successfully transferred to Alchemy!', 'success');
+            showNotification(`Material successfully transferred to Alchemy! Code: ${data.alchemyCode}`, 'success');
         } else {
             throw new Error(data.message || 'Transfer failed');
         }
@@ -266,5 +274,59 @@ window.onclick = function(event) {
     const modal = document.getElementById('aboutDialog');
     if (event.target === modal) {
         modal.style.display = 'none';
+    }
+}
+
+// Delete material
+async function deleteMaterial(materialId) {
+    if (!confirm('Are you sure you want to delete this material?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/delete-material/${materialId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showNotification('Material deleted successfully!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            throw new Error(data.message || 'Delete failed');
+        }
+    } catch (error) {
+        showNotification(`Delete failed: ${error.message}`, 'error');
+    }
+}
+
+// Revert material to pending status
+async function revertMaterial(materialId) {
+    if (!confirm('Revert this material to pending status? This will remove its Alchemy code.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/revert-material/${materialId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showNotification('Material reverted to pending status!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            throw new Error(data.message || 'Revert failed');
+        }
+    } catch (error) {
+        showNotification(`Revert failed: ${error.message}`, 'error');
     }
 }

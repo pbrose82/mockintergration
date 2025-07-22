@@ -1,35 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MockERP Pro - Demo Integration System</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="demo-banner">
-        ⚠️ DEMO SOFTWARE - This is a mock system for demonstrating Alchemy integrations
-    </div>
-    
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo-section">
-                    <h1>MockERP Pro</h1>
-                    <span class="tagline">Enterprise Resource Planning Demo</span>
-                </div>
-                <nav>
-                    <a href="/" class="active">Materials</a>
-                    <a href="/admin">Admin</a>
-                    <span class="status-indicator <%= config.configured ? 'connected' : 'disconnected' %>">
-                        <%= config.configured ? '● Connected to Alchemy' : '○ Not Connected' %>
-                    </span>
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    <main class="container">
+<%- include('partials/header', { 
+    pageTitle: 'MockERP Pro - Materials Management',
+    activePage: 'materials',
+    showStatus: true,
+    config: config
+}) %>
         <% if (message) { %>
         <div class="alert alert-success">
             <%= message %>
@@ -137,14 +111,6 @@
                 <li>Real-time status updates</li>
             </ul>
         </div>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>MockERP Pro v2.3 - Demo Integration System | Not a real business application</p>
-        </div>
-    </footer>
-
-    <script src="/js/app.js"></script>
-</body>
-</html>
+<%- include('partials/footer', {
+    connectionStatus: config.configured ? 'Connected' : 'Not Connected'
+}) %>

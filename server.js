@@ -125,7 +125,7 @@ app.post('/api/transfer', async (req, res) => {
         });
 
         const materialId = createRes.data.materialId;
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         console.log(`Waiting before fetching Code for material ID ${materialId}`);
         if (!materialId) throw new Error('Alchemy did not return a materialId');
 
@@ -185,6 +185,12 @@ app.delete('/api/delete-material/:id', (req, res) => {
     }
     mockMaterials.splice(index, 1);
     res.json({ success: true, message: 'Material deleted successfully' });
+});
+
+
+app.post('/api/clear-token', (req, res) => {
+    authTokenCache = { token: null, expiry: null };
+    res.json({ success: true, message: 'Authentication token cleared. Next API call will re-authenticate.' });
 });
 
 app.post('/api/test-connection', async (req, res) => {

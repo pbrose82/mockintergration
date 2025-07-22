@@ -31,7 +31,9 @@ async function transferMaterial(materialId) {
         };
 
         // NEW: Send the FULL materialData object to the backend.
-        const response = await fetch('/api/transfer', {
+        // This is the new, corrected code
+        const serverUrl = 'https://mockintergration.onrender.com';
+        const response = await fetch(`${serverUrl}/api/transfer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

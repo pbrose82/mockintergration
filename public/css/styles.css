@@ -1,500 +1,201 @@
-/* Reset and base styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f5f5f5;
-}
-
-/* Demo banner - makes it clear this is not real software */
-.demo-banner {
-    background: repeating-linear-gradient(
-        45deg,
-        #ff6b6b,
-        #ff6b6b 10px,
-        #ff5252 10px,
-        #ff5252 20px
-    );
-    color: white;
-    text-align: center;
-    padding: 10px;
-    font-weight: bold;
-    font-size: 14px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Header */
-header {
-    background: #2c3e50;
-    color: white;
-    padding: 1rem 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo-section h1 {
-    font-size: 1.8rem;
-    font-weight: 600;
-}
-
-.tagline {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    font-style: italic;
-}
-
-nav {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background 0.3s;
-}
-
-nav a:hover,
-nav a.active {
-    background: rgba(255,255,255,0.1);
-}
-
-.status-indicator {
-    font-size: 0.9rem;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.1);
-}
-
-.status-indicator.connected {
-    color: #4CAF50;
-}
-
-.status-indicator.disconnected {
-    color: #ff6b6b;
-}
-
-/* Main content */
-main {
-    padding: 2rem 0;
-    min-height: calc(100vh - 200px);
-}
-
-/* Controls section */
-.controls-section {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Buttons */
-.btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.btn-primary {
-    background: #3498db;
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #2980b9;
-}
-
-.btn-secondary {
-    background: #95a5a6;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background: #7f8c8d;
-}
-
-.btn-sm {
-    padding: 0.3rem 0.8rem;
-    font-size: 0.9rem;
-}
-
-.btn-transfer {
-    background: #27ae60;
-    color: white;
-}
-
-.btn-transfer:hover {
-    background: #229954;
-}
-
-.btn-view {
-    background: #9b59b6;
-    color: white;
-}
-
-.btn-view:hover {
-    background: #8e44ad;
-}
-
-/* Form card */
-.form-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-/* Materials table */
-.materials-section {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
-}
-
-.materials-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.materials-table th {
-    background: #34495e;
-    color: white;
-    padding: 1rem;
-    text-align: left;
-    font-weight: 500;
-}
-
-.materials-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #eee;
-}
-
-.materials-table tr:hover {
-    background: #f8f9fa;
-}
-
-/* Badges */
-.badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.badge-category {
-    background: #e3f2fd;
-    color: #1976d2;
-}
-
-.badge-status {
-    background: #fff3e0;
-    color: #f57c00;
-}
-
-/* Transfer status */
-.transfer-status {
-    font-weight: 500;
-}
-
-.transfer-status.pending {
-    color: #f39c12;
-}
-
-.transfer-status.transferred {
-    color: #27ae60;
-}
-
-.text-muted {
-    color: #7f8c8d;
-}
-
-/* Info section */
-.info-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.info-section h3 {
-    margin-bottom: 1rem;
-    color: #2c3e50;
-}
-
-.info-section ul {
-    margin-left: 1.5rem;
-}
-
-/* Admin page styles */
-.admin-section h2 {
-    margin-bottom: 2rem;
-    color: #2c3e50;
-}
-
-.config-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.config-card h3 {
-    margin-bottom: 1.5rem;
-    color: #34495e;
-}
-
-.config-info {
-    display: grid;
-    gap: 1rem;
-}
-
-.config-item {
-    display: flex;
-    gap: 1rem;
-}
-
-.config-item label {
-    font-weight: 500;
-    min-width: 150px;
-}
-
-.connection-result {
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 4px;
-    display: none;
-}
-
-.connection-result.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.connection-result.error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.instructions {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 4px;
-}
-
-.instructions code {
-    background: #e9ecef;
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
-    font-family: 'Courier New', monospace;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-}
-
-.stat-item {
-    text-align: center;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 4px;
-}
-
-.stat-item h4 {
-    color: #34495e;
-    margin-bottom: 0.5rem;
-}
-
-.feature-list {
-    list-style: none;
-}
-
-.feature-list li {
-    padding: 0.5rem 0;
-    color: #27ae60;
-}
-
-/* Alerts */
-.alert {
-    padding: 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-}
-
-.alert-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-/* Footer */
-footer {
-    background: #2c3e50;
-    color: white;
-    text-align: center;
-    padding: 1.5rem 0;
-    margin-top: 4rem;
-}
-
-footer p {
-    opacity: 0.8;
-    font-size: 0.9rem;
-    margin: 0.5rem 0;
-}
-
-.footer-links {
-    margin-top: 0.5rem;
-}
-
-.footer-links a {
-    color: #3498db;
-    text-decoration: none;
-    margin: 0 0.5rem;
-}
-
-.footer-links a:hover {
-    text-decoration: underline;
-}
-
-#connection-status {
-    color: #95a5a6;
-    font-style: italic;
-}
-
-/* Modal Dialog */
-.modal {
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-.modal-content h2 {
-    color: #2c3e50;
-    margin-bottom: 1rem;
-}
-
-.modal-content h3 {
-    color: #34495e;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 20px;
-}
-
-.close:hover,
-.close:focus {
-    color: #000;
-}
-
-/* Loading states */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #3498db;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-left: 0.5rem;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+// Frontend JavaScript for MockERP Pro
+
+// Show/hide add material form
+function showAddMaterialForm() {
+    document.getElementById('addMaterialForm').style.display = 'block';
+    document.getElementById('tradeName').focus();
+}
+
+function hideAddMaterialForm() {
+    document.getElementById('addMaterialForm').style.display = 'none';
+    document.getElementById('addMaterialForm').querySelector('form').reset();
+}
+
+// Transfer material to Alchemy
+async function transferMaterial(materialId) {
+    const row = document.querySelector(`tr[data-material-id="${materialId}"]`);
+    const button = row.querySelector('.btn-transfer');
+    
+    // Show loading state
+    button.disabled = true;
+    button.innerHTML = 'Transferring... <span class="spinner"></span>';
+    
+    try {
+        const response = await fetch('/api/transfer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ materialId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Update the UI
+            const statusCell = row.querySelector('.transfer-status');
+            statusCell.textContent = 'Transferred';
+            statusCell.classList.remove('pending');
+            statusCell.classList.add('transferred');
+            
+            // Update Alchemy code
+            const codeCell = row.cells[5];
+            codeCell.innerHTML = data.alchemyCode;
+            
+            // Replace button with link
+            const actionCell = row.cells[6];
+            actionCell.innerHTML = `<a href="${data.alchemyUrl}" target="_blank" class="btn btn-sm btn-view">View in Alchemy</a>`;
+            
+            // Show success message
+            showNotification('Material successfully transferred to Alchemy!', 'success');
+        } else {
+            throw new Error(data.message || 'Transfer failed');
+        }
+    } catch (error) {
+        console.error('Transfer error:', error);
+        button.disabled = false;
+        button.textContent = 'Transfer to Alchemy';
+        showNotification(`Transfer failed: ${error.message}`, 'error');
+    }
+}
+
+// Test connection (admin page)
+async function testConnection() {
+    const button = event.target;
+    const resultDiv = document.getElementById('connectionResult');
+    
+    button.disabled = true;
+    button.innerHTML = 'Testing... <span class="spinner"></span>';
+    resultDiv.style.display = 'none';
+    
+    try {
+        const response = await fetch('/api/test-connection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        resultDiv.style.display = 'block';
+        
+        if (response.ok && data.success) {
+            resultDiv.className = 'connection-result success';
+            resultDiv.textContent = '✓ ' + data.message;
+        } else {
+            resultDiv.className = 'connection-result error';
+            resultDiv.textContent = '✗ ' + data.message;
+        }
+    } catch (error) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'connection-result error';
+        resultDiv.textContent = '✗ Connection test failed: ' + error.message;
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Test Connection';
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type}`;
+    notification.textContent = message;
+    notification.style.position = 'fixed';
+    notification.style.top = '80px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '1001';
+    notification.style.minWidth = '300px';
+    notification.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    
+    document.body.appendChild(notification);
+    
+    // Fade in
+    notification.style.opacity = '0';
+    setTimeout(() => {
+        notification.style.transition = 'opacity 0.3s';
+        notification.style.opacity = '1';
+    }, 10);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 5000);
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl+N or Cmd+N to add new material
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        const addForm = document.getElementById('addMaterialForm');
+        if (addForm) {
+            showAddMaterialForm();
+        }
+    }
+    
+    // Escape to close forms
+    if (e.key === 'Escape') {
+        const addForm = document.getElementById('addMaterialForm');
+        if (addForm && addForm.style.display !== 'none') {
+            hideAddMaterialForm();
+        }
+    }
+});
+
+// Auto-refresh data every 30 seconds (for demo purposes)
+if (window.location.pathname === '/') {
+    setInterval(() => {
+        // In a real app, this would fetch updated data via AJAX
+        console.log('Auto-refresh check (in real app, would check for updates)');
+    }, 30000);
+}
+
+// Add some demo interactivity
+document.addEventListener('DOMContentLoaded', () => {
+    // Highlight rows on hover
+    const rows = document.querySelectorAll('.materials-table tbody tr');
+    rows.forEach(row => {
+        row.addEventListener('mouseenter', () => {
+            row.style.transform = 'translateX(2px)';
+            row.style.transition = 'transform 0.2s';
+        });
+        row.addEventListener('mouseleave', () => {
+            row.style.transform = 'translateX(0)';
+        });
+    });
+    
+    // Add click-to-copy for Alchemy codes
+    const codeCells = document.querySelectorAll('.materials-table td:nth-child(6)');
+    codeCells.forEach(cell => {
+        if (cell.textContent.trim() !== '-') {
+            cell.style.cursor = 'pointer';
+            cell.title = 'Click to copy';
+            cell.addEventListener('click', () => {
+                navigator.clipboard.writeText(cell.textContent.trim());
+                showNotification('Code copied to clipboard!', 'success');
+            });
+        }
+    });
+});
+
+// About dialog functions
+function showAboutDialog() {
+    document.getElementById('aboutDialog').style.display = 'flex';
+}
+
+function closeAboutDialog() {
+    document.getElementById('aboutDialog').style.display = 'none';
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('aboutDialog');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
 }

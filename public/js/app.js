@@ -11,58 +11,57 @@ function hideAddMaterialForm() {
     document.getElementById('addMaterialForm').querySelector('form').reset();
 }
 
-// --- THIS IS THE UPDATED FUNCTION ---
 // Transfer material to Alchemy
 async function transferMaterial(materialId) {
     const row = document.querySelector(`tr[data-material-id="${materialId}"]`);
     const button = row.querySelector('.btn-transfer');
-
+    
     // Show loading state
     button.disabled = true;
     button.innerHTML = '🔄 Transferring... <span class="spinner"></span>';
-
+    
     try {
-        // NEW: Get the material data directly from the table row's cells.
-        // (Assumes standard column order: TradeName, Category, Status)
-        const materialData = {
-            TradeName: row.cells[1].textContent.trim(),
-            Category: row.cells[2].textContent.trim(),
-            MaterialStatus: row.cells[3].textContent.trim()
-        };
-
-        // NEW: Send the FULL materialData object to the backend.
-        // This is the new, corrected code
-        const serverUrl = 'https://mockintergration.onrender.com';
-        const response = await fetch(`${serverUrl}/api/transfer`, {
+        const response = await fetch('/api/transfer', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(materialData) // We send the data, not just the ID
+            body: JSON.stringify({ materialId })
         });
-
+        
         const data = await response.json();
-
+        
         if (response.ok && data.success) {
-            // Update the UI (this part remains the same)
+            // Log debug info if available
+            if (data.debug) {
+                console.log('Transfer debug info:', data.debug);
+            }
+            
+            // Update the UI
             const statusCell = row.querySelector('.transfer-status');
             statusCell.textContent = 'Transferred';
             statusCell.classList.remove('pending');
             statusCell.classList.add('transferred');
-
+            
             // Update Alchemy code
             const codeCell = row.cells[5];
             codeCell.innerHTML = data.alchemyCode;
-
+            
             // Replace button with link
             const actionCell = row.cells[6];
             actionCell.innerHTML = `
                 <a href="${data.alchemyUrl}" target="_blank" class="btn btn-sm btn-view">👁️ View in Alchemy</a>
-                <button class="btn btn-sm btn-secondary" onclick="revertMaterial('${materialId}')" title="This is a mock action">↩️ Revert</button>
+                <button class="btn btn-sm btn-secondary" onclick="revertMaterial('${materialId}')">↩️ Revert</button>
             `;
-
+            
+            // Add success animation to row
+            row.style.animation = 'none';
+            setTimeout(() => {
+                row.style.animation = 'fadeInUp 0.5s ease';
+            }, 10);
+            
             // Show success message
-            showNotification(`Material successfully transferred! Code: ${data.alchemyCode}`, 'success');
+            showNotification(`Material successfully transferred to Alchemy! Code: ${data.alchemyCode}`, 'success');
         } else {
             throw new Error(data.message || 'Transfer failed');
         }
@@ -73,18 +72,16 @@ async function transferMaterial(materialId) {
         showNotification(`Transfer failed: ${error.message}`, 'error');
     }
 }
-// --- END OF UPDATED FUNCTION ---
-
 
 // Test connection (admin page)
 async function testConnection() {
     const button = event.target;
     const resultDiv = document.getElementById('connectionResult');
-
+    
     button.disabled = true;
     button.innerHTML = 'Testing... <span class="spinner"></span>';
     resultDiv.style.display = 'none';
-
+    
     try {
         const response = await fetch('/api/test-connection', {
             method: 'POST',
@@ -92,11 +89,11 @@ async function testConnection() {
                 'Content-Type': 'application/json'
             }
         });
-
+        
         const data = await response.json();
-
+        
         resultDiv.style.display = 'block';
-
+        
         if (response.ok && data.success) {
             resultDiv.className = 'connection-result success';
             resultDiv.textContent = '✓ ' + data.message;
@@ -116,12 +113,12 @@ async function testConnection() {
 
 // Change tenant quickly
 async function changeTenant() {
-    const tenantSpan = Array.from(document.querySelectorAll('.config-item')).find(item =>
+    const tenantSpan = Array.from(document.querySelectorAll('.config-item')).find(item => 
         item.querySelector('label')?.textContent.includes('Tenant:')
     )?.querySelector('span');
     const currentTenant = tenantSpan ? tenantSpan.textContent : 'unknown';
     const newTenant = prompt(`Current tenant: ${currentTenant}\n\nEnter new tenant name:`);
-
+    
     if (newTenant && newTenant.trim()) {
         try {
             const response = await fetch('/api/change-tenant', {
@@ -131,9 +128,9 @@ async function changeTenant() {
                 },
                 body: JSON.stringify({ tenant: newTenant.trim() })
             });
-
+            
             const data = await response.json();
-
+            
             if (response.ok && data.success) {
                 showNotification(data.message, 'success');
                 setTimeout(() => location.reload(), 1500);
@@ -156,9 +153,9 @@ async function clearToken() {
                     'Content-Type': 'application/json'
                 }
             });
-
+            
             const data = await response.json();
-
+            
             if (response.ok && data.success) {
                 showNotification(data.message, 'success');
             } else {
@@ -187,16 +184,16 @@ function showNotification(message, type = 'info') {
     notification.style.minWidth = '300px';
     notification.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
     notification.style.animation = 'slideInRight 0.3s ease';
-
+    
     document.body.appendChild(notification);
-
+    
     // Fade in
     notification.style.opacity = '0';
     setTimeout(() => {
         notification.style.transition = 'opacity 0.3s';
         notification.style.opacity = '1';
     }, 10);
-
+    
     // Remove after 5 seconds
     setTimeout(() => {
         notification.style.opacity = '0';
@@ -217,7 +214,7 @@ document.addEventListener('keydown', (e) => {
             showAddMaterialForm();
         }
     }
-
+    
     // Escape to close forms
     if (e.key === 'Escape') {
         const addForm = document.getElementById('addMaterialForm');
@@ -248,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             row.style.transform = 'translateX(0)';
         });
     });
-
+    
     // Add click-to-copy for Alchemy codes
     const codeCells = document.querySelectorAll('.materials-table td:nth-child(6)');
     codeCells.forEach(cell => {
@@ -285,7 +282,7 @@ async function deleteMaterial(materialId) {
     if (!confirm('Are you sure you want to delete this material?')) {
         return;
     }
-
+    
     try {
         const response = await fetch(`/api/delete-material/${materialId}`, {
             method: 'DELETE',
@@ -293,9 +290,9 @@ async function deleteMaterial(materialId) {
                 'Content-Type': 'application/json'
             }
         });
-
+        
         const data = await response.json();
-
+        
         if (response.ok && data.success) {
             showNotification('Material deleted successfully!', 'success');
             setTimeout(() => location.reload(), 1000);
@@ -312,7 +309,7 @@ async function revertMaterial(materialId) {
     if (!confirm('Revert this material to pending status? This will remove its Alchemy code.')) {
         return;
     }
-
+    
     try {
         const response = await fetch(`/api/revert-material/${materialId}`, {
             method: 'POST',
@@ -320,9 +317,9 @@ async function revertMaterial(materialId) {
                 'Content-Type': 'application/json'
             }
         });
-
+        
         const data = await response.json();
-
+        
         if (response.ok && data.success) {
             showNotification('Material reverted to pending status!', 'success');
             setTimeout(() => location.reload(), 1000);

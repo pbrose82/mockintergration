@@ -126,6 +126,9 @@ app.post('/api/transfer', async (req, res) => {
 
         const materialId = createRes.data.materialId;
         if (!materialId) throw new Error('Alchemy did not return a materialId');
+        // Wait for indexing before reading fields like Code
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
 
         // Read Code field
         const readRes = await axios.get(`https://core-production.alchemy.cloud/core/api/v2/read-record?id=${materialId}`, {

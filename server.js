@@ -29,6 +29,14 @@ let authTokenCache = {
   expiry: null
 };
 
+// Configuration store (in production, use database)
+let appConfig = {
+  email: process.env.ALCHEMY_EMAIL || '',
+  password: process.env.ALCHEMY_PASSWORD || '',
+  tenant: process.env.ALCHEMY_TENANT || 'productcaseelnlims',
+  materialType: process.env.ALCHEMY_MATERIAL_TYPE || '982'
+};
+
 // Mock database for materials (in production, use real database)
 let mockMaterials = [
   {
@@ -55,23 +63,27 @@ async function getAlchemyToken() {
     return authTokenCache.token;
   }
 
+  if (!appConfig.email || !appConfig.password) {
+    throw new Error('Credentials not configured. Please configure them in the Admin panel.');
+  }
+
   try {
     const response = await axios.post(`${process.env.ALCHEMY_API_BASE_URL}/sign-in`, {
-      email: process.env.ALCHEMY_EMAIL,
-      password: process.env.ALCHEMY_PASSWORD
+      email: appConfig.email,
+      password: appConfig.password
     });
 
     const authData = response.data;
     let token = null;
 
-    if (authData.tenant === process.env.ALCHEMY_TENANT) {
+    if (authData.tenant === appConfig.tenant) {
       token = authData.accessToken;
     } else {
-      const tenantData = authData.tokens.find(t => t.tenant === process.env.ALCHEMY_TENANT);
+      const tenantData = authData.tokens.find(t => t.tenant === appConfig.tenant);
       if (tenantData) token = tenantData.accessToken;
     }
 
-    if (!token) throw new Error(`No access token found for tenant: ${process.env.ALCHEMY_TENANT}`);
+    if (!token) throw new Error(`No access token found for tenant: ${appConfig.tenant}`);
 
     // Parse JWT to get expiry
     const tokenParts = token.split('.');
@@ -92,8 +104,8 @@ app.get('/', (req, res) => {
     materials: mockMaterials,
     message: req.session.message || null,
     config: {
-      tenant: process.env.ALCHEMY_TENANT,
-      configured: !!(process.env.ALCHEMY_EMAIL && process.env.ALCHEMY_PASSWORD)
+      tenant: appConfig.tenant,
+      configured: !!(appConfig.email && appConfig.password)
     }
   });
   req.session.message = null;
@@ -102,12 +114,15 @@ app.get('/', (req, res) => {
 app.get('/admin', (req, res) => {
   res.render('admin', {
     config: {
-      email: process.env.ALCHEMY_EMAIL || '',
-      tenant: process.env.ALCHEMY_TENANT || 'productcaseelnlims',
-      materialType: process.env.ALCHEMY_MATERIAL_TYPE || '982',
-      apiUrl: process.env.ALCHEMY_API_BASE_URL
-    }
+      email: appConfig.email || '',
+      tenant: appConfig.tenant || 'productcaseelnlims',
+      materialType: appConfig.materialType || '982',
+      apiUrl: process.env.ALCHEMY_API_BASE_URL,
+      hasPassword: !!appConfig.password
+    },
+    message: req.session.adminMessage || null
   });
+  req.session.adminMessage = null;
 });
 
 app.post('/api/transfer', async (req, res) => {
@@ -133,7 +148,7 @@ app.post('/api/transfer', async (req, res) => {
         { identifier: "ExternalCode", rows: [{ row: 0, values: [{ value: externalCode }] }] },
         { identifier: "ProducedBy", rows: [{ row: 0, values: [{ value: "700" }] }] }
       ],
-      materialType: parseInt(process.env.ALCHEMY_MATERIAL_TYPE),
+      materialType: parseInt(appConfig.materialType),
       calculatedPropertiesTable: [],
       formulationTable: [],
       measuredPropertiesList: []
@@ -169,7 +184,7 @@ app.post('/api/transfer', async (req, res) => {
     material.transferStatus = 'Transferred';
     material.alchemyCode = alchemyCode;
     material.alchemyId = alchemyMaterialId;
-    material.alchemyUrl = `https://app.alchemy.cloud/${process.env.ALCHEMY_TENANT}/record/${alchemyMaterialId}`;
+    material.alchemyUrl = `https://app.alchemy.cloud/${appConfig.tenant}/record/${alchemyMaterialId}`;
     material.lastModified = new Date().toISOString();
 
     res.json({
@@ -214,6 +229,41 @@ app.post('/api/add-material', (req, res) => {
   mockMaterials.push(newMaterial);
   req.session.message = 'Material added successfully!';
   res.redirect('/');
+});
+
+app.post('/api/save-credentials', (req, res) => {
+  const { email, password, tenant, materialType } = req.body;
+  
+  // Update configuration
+  if (email) appConfig.email = email;
+  if (password) appConfig.password = password;
+  if (tenant) appConfig.tenant = tenant;
+  if (materialType) appConfig.materialType = materialType;
+  
+  // Clear cached token to force re-authentication
+  authTokenCache = { token: null, expiry: null };
+  
+  req.session.adminMessage = 'Configuration saved successfully!';
+  res.redirect('/admin');
+});
+
+app.post('/api/change-tenant', (req, res) => {
+  const { tenant } = req.body;
+  
+  if (tenant) {
+    appConfig.tenant = tenant;
+    // Clear cached token to force re-authentication with new tenant
+    authTokenCache = { token: null, expiry: null };
+    
+    res.json({ success: true, message: `Tenant changed to: ${tenant}` });
+  } else {
+    res.status(400).json({ success: false, message: 'Tenant name is required' });
+  }
+});
+
+app.post('/api/clear-token', (req, res) => {
+  authTokenCache = { token: null, expiry: null };
+  res.json({ success: true, message: 'Authentication token cleared. Next API call will re-authenticate.' });
 });
 
 // Error handling

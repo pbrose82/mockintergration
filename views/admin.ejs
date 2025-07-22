@@ -1,133 +1,124 @@
-<% include('partials/header', { 
-    pageTitle: 'MockERP Pro - Admin Configuration',
-    activePage: 'admin',
-    showStatus: false
+
+<%- include('partials/header', {
+  pageTitle: 'MockERP Pro - Admin Configuration',
+  activePage: 'admin',
+  showStatus: false
 }) %>
-        <% if (message) { %>
-        <div class="alert alert-success">
-            <%= message %>
-        </div>
-        <% } %>
-        
-        <section class="admin-section">
-            <h2>🛠️ Integration Configuration</h2>
-            
-            <div class="config-card">
-                <h3>🔐 Setup Credentials</h3>
-                <form action="/api/save-credentials" method="POST">
-                    <div class="form-group">
-                        <label for="email">Alchemy Email</label>
-                        <input type="email" id="email" name="email" value="<%= config.email %>" placeholder="your-email@example.com">
-                        <small>Leave blank to keep existing value</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Alchemy Password</label>
-                        <input type="password" id="password" name="password" placeholder="<%= config.hasPassword ? '••••••••' : 'Enter password' %>">
-                        <small><%= config.hasPassword ? '✓ Password is set. Leave blank to keep existing.' : '⚠️ Password not yet configured.' %></small>
-                    </div>
-                    <div class="form-group">
-                        <label for="tenant">Tenant Name</label>
-                        <input type="text" id="tenant" name="tenant" value="<%= config.tenant %>" required>
-                        <small>Common tenants: productcaseelnlims, ppelnlims ect...</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="materialType">Material Type ID</label>
-                        <input type="number" id="materialType" name="materialType" value="<%= config.materialType %>" required>
-                        <small>Find this in Alchemy Admin Panel → Material Types</small>
-                    </div>
-                    <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
-                </form>
-            </div>
 
-            <div class="config-card">
-                <h3>📋 Current Configuration</h3>
-                <div class="config-info">
-                    <div class="config-item">
-                        <label>Alchemy Email:</label>
-                        <span><%= config.email || 'Not configured' %></span>
-                    </div>
-                    <div class="config-item">
-                        <label>Password Status:</label>
-                        <span><%= config.hasPassword ? '✅ Configured' : '❌ Not configured' %></span>
-                    </div>
-                    <div class="config-item">
-                        <label>Tenant:</label>
-                        <span><%= config.tenant %></span>
-                    </div>
-                    <div class="config-item">
-                        <label>Material Type ID:</label>
-                        <span><%= config.materialType %></span>
-                    </div>
-                    <div class="config-item">
-                        <label>API URL:</label>
-                        <span><%= config.apiUrl %></span>
-                    </div>
-                </div>
-                
-                <a href="/guide" class="btn btn-info">📘 User Guide</a>
-<div class="button-group">
-                    <button class="btn btn-primary" onclick="testConnection()">🔗 Test Connection</button>
-                    <button class="btn btn-secondary" onclick="changeTenant()">🔄 Quick Change Tenant</button>
-                    <button class="btn btn-secondary" onclick="clearToken()">🗑️ Clear Stored Token</button>
-                </div>
-                <div id="connectionResult" class="connection-result"></div>
-            </div>
+<% if (message) { %>
+  <div class="alert alert-success">
+    <%= message %>
+  </div>
+<% } %>
 
-            <div class="config-card">
-                <h3>🚀 Quick Start Guide</h3>
-                <div class="instructions">
-                    <p><strong>Getting Started:</strong></p>
-                    <ol>
-                        <li>Enter your Alchemy credentials in the form above</li>
-                        <li>Set your tenant name (e.g., productcaseelnlims)</li>
-                        <li>Find your Material Type ID in Alchemy Admin Panel → Material Types</li>
-                        <li>Save the configuration</li>
-                        <li>Test the connection to verify everything works</li>
-                    </ol>
-                    <p><strong>Additional Features:</strong></p>
-                    <ul>
-                        <li><strong>🔄 Quick Change Tenant</strong> - Switch between tenants without re-entering credentials</li>
-                        <li><strong>🗑️ Clear Stored Token</strong> - Force re-authentication on next API call</li>
-                        <li><strong>↩️ Revert Materials</strong> - Reset transferred materials back to pending status</li>
-                        <li><strong>🗑️ Delete Materials</strong> - Remove materials from the system</li>
-                    </ul>
-                </div>
-            </div>
+<section class="admin-section">
+  <h2>🛠️ Integration Configuration</h2>
 
-            <div class="config-card">
-                <h3>📊 Integration Statistics</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <h4>🔌 API Endpoint</h4>
-                        <p>Alchemy Cloud v2</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>🔐 Authentication</h4>
-                        <p>JWT Token (Bearer)</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>🔗 Integration Type</h4>
-                        <p>REST API</p>
-                    </div>
-                    <div class="stat-item">
-                        <h4>📤 Data Flow</h4>
-                        <p>One-way (ERP → Alchemy)</p>
-                    </div>
-                </div>
-            </div>
+  <div class="config-card">
+    <h3>🔐 Setup Credentials</h3>
+    <form action="/api/save-credentials" method="POST">
+      <div class="form-group">
+        <label for="email">Alchemy Email</label>
+        <input type="email" id="email" name="email" value="<%= config.email %>" placeholder="your-email@example.com">
+        <small>Leave blank to keep existing value</small>
+      </div>
+      <div class="form-group">
+        <label for="password">Alchemy Password</label>
+        <input type="password" id="password" name="password" placeholder="<%= config.hasPassword ? '••••••••' : 'Enter password' %>">
+        <small><%= config.hasPassword ? '✓ Password is set. Leave blank to keep existing.' : '⚠️ Password not yet configured.' %></small>
+      </div>
+      <div class="form-group">
+        <label for="tenant">Tenant Name</label>
+        <input type="text" id="tenant" name="tenant" value="<%= config.tenant %>" required>
+        <small>Common tenants: productcaseelnlims, ppelnlims</small>
+      </div>
+      <div class="form-group">
+        <label for="materialType">Material Type ID</label>
+        <input type="number" id="materialType" name="materialType" value="<%= config.materialType %>" required>
+        <small>Find this in Alchemy Admin Panel → Material Types</small>
+      </div>
+      <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
+    </form>
+  </div>
 
-            <div class="config-card">
-                <h3>✨ Demo Features</h3>
-                <ul class="feature-list">
-                    <li>Simulates enterprise material management system</li>
-                    <li>Demonstrates API authentication patterns</li>
-                    <li>Shows real-time data synchronization</li>
-                    <li>Includes error handling and retry logic</li>
-                    <li>Provides direct links to created materials in Alchemy</li>
-                    <li>Supports multiple tenants through configuration</li>
-                </ul>
-            </div>
-        </section>
-<% include('partials/footer', {
-    connectionStatus: config.email ? 'Configured' : 'Not Configured'
+  <div class="config-card">
+    <h3>📋 Current Configuration</h3>
+    <div class="config-info">
+      <div class="config-item">
+        <label>Alchemy Email:</label>
+        <span><%= config.email || 'Not configured' %></span>
+      </div>
+      <div class="config-item">
+        <label>Password Status:</label>
+        <span><%= config.hasPassword ? '✅ Configured' : '❌ Not configured' %></span>
+      </div>
+      <div class="config-item">
+        <label>Tenant:</label>
+        <span><%= config.tenant %></span>
+      </div>
+      <div class="config-item">
+        <label>Material Type ID:</label>
+        <span><%= config.materialType %></span>
+      </div>
+      <div class="config-item">
+        <label>API URL:</label>
+        <span><%= config.apiUrl %></span>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <a href="/guide" class="btn btn-info">📘 User Guide</a>
+      <button class="btn btn-primary" onclick="testConnection()">🔗 Test Connection</button>
+      <button class="btn btn-secondary" onclick="changeTenant()">🔄 Quick Change Tenant</button>
+      <button class="btn btn-secondary" onclick="clearToken()">🗑️ Clear Stored Token</button>
+      <button class="btn btn-danger" onclick="clearCredentials()">❌ Clear All Credentials</button>
+    </div>
+    <div id="connectionResult" class="connection-result"></div>
+  </div>
+
+  <div class="config-card">
+    <h3>🚀 Quick Start Guide</h3>
+    <div class="instructions">
+      <p><strong>Getting Started:</strong></p>
+      <ol>
+        <li>Enter your Alchemy credentials above</li>
+        <li>Set your tenant name (e.g., productcaseelnlims)</li>
+        <li>Set the Material Type ID</li>
+        <li>Save the configuration</li>
+        <li>Test the connection</li>
+      </ol>
+      <p><strong>Other Actions:</strong></p>
+      <ul>
+        <li><strong>Quick Change Tenant</strong> – switch tenants without clearing credentials</li>
+        <li><strong>Clear Token</strong> – force re-authentication</li>
+        <li><strong>Revert/Delete Materials</strong> – manage local mock data</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="config-card">
+    <h3>📊 Integration Stats</h3>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <h4>🔌 API Endpoint</h4>
+        <p>Alchemy Cloud v2</p>
+      </div>
+      <div class="stat-item">
+        <h4>🔐 Auth Type</h4>
+        <p>JWT Token (Bearer)</p>
+      </div>
+      <div class="stat-item">
+        <h4>🔗 Integration</h4>
+        <p>REST API</p>
+      </div>
+      <div class="stat-item">
+        <h4>📤 Data Flow</h4>
+        <p>One-way (ERP → Alchemy)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer', {
+  connectionStatus: config.email ? 'Configured' : 'Not Configured'
 }) %>

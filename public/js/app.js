@@ -18,7 +18,7 @@ async function transferMaterial(materialId) {
     
     // Show loading state
     button.disabled = true;
-    button.innerHTML = 'Transferring... <span class="spinner"></span>';
+    button.innerHTML = '🔄 Transferring... <span class="spinner"></span>';
     
     try {
         const response = await fetch('/api/transfer', {
@@ -44,7 +44,13 @@ async function transferMaterial(materialId) {
             
             // Replace button with link
             const actionCell = row.cells[6];
-            actionCell.innerHTML = `<a href="${data.alchemyUrl}" target="_blank" class="btn btn-sm btn-view">View in Alchemy</a>`;
+            actionCell.innerHTML = `<a href="${data.alchemyUrl}" target="_blank" class="btn btn-sm btn-view">👁️ View in Alchemy</a>`;
+            
+            // Add success animation to row
+            row.style.animation = 'none';
+            setTimeout(() => {
+                row.style.animation = 'fadeInUp 0.5s ease';
+            }, 10);
             
             // Show success message
             showNotification('Material successfully transferred to Alchemy!', 'success');
@@ -54,7 +60,7 @@ async function transferMaterial(materialId) {
     } catch (error) {
         console.error('Transfer error:', error);
         button.disabled = false;
-        button.textContent = 'Transfer to Alchemy';
+        button.innerHTML = '📤 Transfer to Alchemy';
         showNotification(`Transfer failed: ${error.message}`, 'error');
     }
 }
@@ -97,17 +103,79 @@ async function testConnection() {
     }
 }
 
-// Show notification
+// Change tenant quickly
+async function changeTenant() {
+    const tenantSpan = Array.from(document.querySelectorAll('.config-item')).find(item => 
+        item.querySelector('label')?.textContent.includes('Tenant:')
+    )?.querySelector('span');
+    const currentTenant = tenantSpan ? tenantSpan.textContent : 'unknown';
+    const newTenant = prompt(`Current tenant: ${currentTenant}\n\nEnter new tenant name:`);
+    
+    if (newTenant && newTenant.trim()) {
+        try {
+            const response = await fetch('/api/change-tenant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tenant: newTenant.trim() })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification(data.message || 'Failed to change tenant', 'error');
+            }
+        } catch (error) {
+            showNotification('Error changing tenant: ' + error.message, 'error');
+        }
+    }
+}
+
+// Clear stored authentication token
+async function clearToken() {
+    if (confirm('Clear the stored authentication token? Next API call will re-authenticate.')) {
+        try {
+            const response = await fetch('/api/clear-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                showNotification(data.message, 'success');
+            } else {
+                showNotification('Failed to clear token', 'error');
+            }
+        } catch (error) {
+            showNotification('Error clearing token: ' + error.message, 'error');
+        }
+    }
+}
+
+// Show notification with modern styling
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `alert alert-${type}`;
-    notification.textContent = message;
+    notification.innerHTML = `
+        <span style="font-size: 1.25rem; margin-right: 0.5rem;">
+            ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
+        </span>
+        ${message}
+    `;
     notification.style.position = 'fixed';
     notification.style.top = '80px';
     notification.style.right = '20px';
     notification.style.zIndex = '1001';
     notification.style.minWidth = '300px';
-    notification.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    notification.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    notification.style.animation = 'slideInRight 0.3s ease';
     
     document.body.appendChild(notification);
     
@@ -121,6 +189,7 @@ function showNotification(message, type = 'info') {
     // Remove after 5 seconds
     setTimeout(() => {
         notification.style.opacity = '0';
+        notification.style.transform = 'translateX(20px)';
         setTimeout(() => {
             document.body.removeChild(notification);
         }, 300);
@@ -182,3 +251,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// About dialog functions
+function showAboutDialog() {
+    document.getElementById('aboutDialog').style.display = 'flex';
+}
+
+function closeAboutDialog() {
+    document.getElementById('aboutDialog').style.display = 'none';
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('aboutDialog');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}

@@ -595,12 +595,74 @@ main {
     font-weight: 500;
 }
 
+
 .alert-success {
     background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
     color: #065f46;
     border: 1px solid #6ee7b7;
 }
+/* Add these alert styles to your public/css/styles.css file (after the existing .alert-success styles) */
 
+/* Error alert styling */
+.alert-error {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #7f1d1d;  /* Dark red text for readability */
+    border: 1px solid #fca5a5;
+}
+
+/* Info alert styling */
+.alert-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e3a8a;  /* Dark blue text for readability */
+    border: 1px solid #93c5fd;
+}
+
+/* Ensure all alert text is readable */
+.alert {
+    color: inherit;  /* Use the color from specific alert types */
+}
+
+/* Icon colors for different alert types */
+.alert-error::before {
+    content: '✗';
+    color: #dc2626;  /* Bright red icon */
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.alert-info::before {
+    content: 'ℹ';
+    color: #2563eb;  /* Bright blue icon */
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+/* Fix for notification popups specifically */
+.alert[style*="position: fixed"] {
+    /* Ensure proper text contrast for floating notifications */
+    backdrop-filter: blur(10px);
+}
+
+.alert-error[style*="position: fixed"] {
+    background: #ffffff;  /* White background as requested */
+    color: #991b1b;      /* Dark red text */
+    border: 2px solid #ef4444;
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+}
+
+.alert-success[style*="position: fixed"] {
+    background: #ffffff;  /* White background for consistency */
+    color: #065f46;      /* Dark green text */
+    border: 2px solid #10b981;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+}
+
+.alert-info[style*="position: fixed"] {
+    background: #ffffff;  /* White background for consistency */
+    color: #1e3a8a;      /* Dark blue text */
+    border: 2px solid #3b82f6;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+}
 .alert::before {
     font-size: 1.25rem;
 }

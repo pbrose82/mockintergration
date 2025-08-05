@@ -757,6 +757,73 @@ footer p {
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
 }
+/* Add these styles to the end of your public/css/styles.css file */
+
+/* Product-specific badge styles */
+.badge-status.active {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+}
+
+/* Products table specific */
+.products-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+/* Product code styling */
+.product-code {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* API endpoint display */
+.api-endpoint {
+    background: var(--dark-bg);
+    color: var(--secondary-color);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.875rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.api-endpoint code {
+    color: var(--secondary-color);
+}
+
+/* JSON example styling */
+pre {
+    background: var(--light-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Empty state for products */
+.empty-products {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-products svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
 
 .close {
     position: absolute;

@@ -47,6 +47,9 @@ let mockMaterials = [
     { id: 'MOCK-002', tradeName: 'Test Compound XY-50', category: 'Intermediate', materialStatus: 'Experimental', transferStatus: 'Pending', alchemyCode: null, alchemyUrl: null }
 ];
 
+// Mock Products DB
+let mockProducts = [];
+
 // Helpers
 function shortUUID() {
     return crypto.randomUUID().split('-')[0];
@@ -75,6 +78,18 @@ async function getAlchemyToken() {
 app.get('/', (req, res) => {
     res.render('index', {
         materials: mockMaterials,
+        message: req.session.message || null,
+        config: {
+            tenant: appConfig.tenant,
+            configured: !!(appConfig.email && appConfig.password)
+        }
+    });
+    req.session.message = null;
+});
+
+app.get('/products', (req, res) => {
+    res.render('products', {
+        products: mockProducts,
         message: req.session.message || null,
         config: {
             tenant: appConfig.tenant,
@@ -150,6 +165,95 @@ app.post('/api/transfer', async (req, res) => {
     }
 });
 
+// New API endpoint to receive product data from Alchemy
+app.post('/api/products/receive', (req, res) => {
+    try {
+        const productData = req.body;
+        
+        // Validate required fields
+        const requiredFields = ['Code', 'ProductName', 'RecordID'];
+        for (const field of requiredFields) {
+            if (!productData[field]) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Missing required field: ${field}` 
+                });
+            }
+        }
+        
+        // Check if product already exists (by RecordID)
+        const existingIndex = mockProducts.findIndex(p => p.RecordID === productData.RecordID);
+        
+        const product = {
+            Code: productData.Code,
+            ProductName: productData.ProductName,
+            Family: productData.Family || '-',
+            Subfamily: productData.Subfamily || '-',
+            SKU: productData.SKU || '-',
+            CreatedOn: productData.CreatedOn || new Date().toISOString(),
+            ProductStatus: productData.ProductStatus || 'Active',
+            RecordID: productData.RecordID,
+            AlchemyURL: `https://app.alchemy.cloud/${appConfig.tenant}/record/${productData.RecordID}`,
+            ReceivedAt: new Date().toISOString()
+        };
+        
+        if (existingIndex !== -1) {
+            // Update existing product
+            mockProducts[existingIndex] = product;
+            console.log(`Updated product: ${product.Code}`);
+        } else {
+            // Add new product
+            mockProducts.unshift(product);
+            console.log(`Added new product: ${product.Code}`);
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `Product ${product.Code} received successfully`,
+            product: product
+        });
+    } catch (error) {
+        console.error('Error receiving product:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to process product data: ' + error.message 
+        });
+    }
+});
+
+// Add material
+app.post('/api/add-material', (req, res) => {
+    const { tradeName, category, materialStatus } = req.body;
+    
+    // Generate a new mock ID
+    const newId = 'MOCK-' + String(mockMaterials.length + 1).padStart(3, '0');
+    
+    const newMaterial = {
+        id: newId,
+        tradeName,
+        category,
+        materialStatus,
+        transferStatus: 'Pending',
+        alchemyCode: null,
+        alchemyUrl: null
+    };
+    
+    mockMaterials.push(newMaterial);
+    req.session.message = `Material "${tradeName}" added successfully!`;
+    res.redirect('/');
+});
+
+// Delete product
+app.delete('/api/delete-product/:recordId', (req, res) => {
+    const { recordId } = req.params;
+    const index = mockProducts.findIndex(p => p.RecordID === recordId);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    mockProducts.splice(index, 1);
+    res.json({ success: true, message: 'Product deleted successfully' });
+});
+
 app.post('/api/save-credentials', (req, res) => {
     const { email, password, tenant, materialType } = req.body;
     if (email) appConfig.email = email;
@@ -160,7 +264,6 @@ app.post('/api/save-credentials', (req, res) => {
     req.session.adminMessage = 'Configuration saved successfully!';
     res.redirect('/admin');
 });
-
 
 app.post('/api/revert-material/:id', (req, res) => {
     const { id } = req.params;
@@ -187,8 +290,6 @@ app.delete('/api/delete-material/:id', (req, res) => {
     res.json({ success: true, message: 'Material deleted successfully' });
 });
 
-
-
 app.post('/api/clear-token', (req, res) => {
     authTokenCache = { token: null, expiry: null };
     res.json({ success: true, message: 'Authentication token cleared. Next API call will re-authenticate.' });
@@ -206,6 +307,7 @@ app.post('/api/clear-credentials', (req, res) => {
     authTokenCache = { token: null, expiry: null };
     res.json({ success: true, message: 'Credentials and token cleared.' });
 });
+
 app.post('/api/test-connection', async (req, res) => {
     try {
         await getAlchemyToken();
@@ -215,11 +317,6 @@ app.post('/api/test-connection', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
-
-
 app.get('/guide', (req, res) => {
     res.render('guide', {
         config: {
@@ -227,4 +324,8 @@ app.get('/guide', (req, res) => {
             hasPassword: !!appConfig.password
         }
     });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });

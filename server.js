@@ -184,6 +184,9 @@ app.post('/api/products/receive', (req, res) => {
         // Check if product already exists (by RecordID)
         const existingIndex = mockProducts.findIndex(p => p.RecordID === productData.RecordID);
         
+        // Use tenant from request data if provided, otherwise use default
+        const tenant = productData.Tenant || appConfig.tenant;
+        
         const product = {
             Code: productData.Code,
             ProductName: productData.ProductName,
@@ -193,8 +196,9 @@ app.post('/api/products/receive', (req, res) => {
             CreatedOn: productData.CreatedOn || new Date().toISOString(),
             ProductStatus: productData.ProductStatus || 'Active',
             RecordID: productData.RecordID,
-            AlchemyURL: `https://app.alchemy.cloud/${appConfig.tenant}/record/${productData.RecordID}`,
-            ReceivedAt: new Date().toISOString()
+            AlchemyURL: `https://app.alchemy.cloud/${tenant}/record/${productData.RecordID}`,
+            ReceivedAt: new Date().toISOString(),
+            Tenant: tenant
         };
         
         if (existingIndex !== -1) {

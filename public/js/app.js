@@ -169,21 +169,42 @@ async function clearToken() {
 
 // Show notification with modern styling
 function showNotification(message, type = 'info') {
+    // Create unique ID for this notification
+    const notificationId = 'notification-' + Date.now();
+    
     const notification = document.createElement('div');
+    notification.id = notificationId;
     notification.className = `alert alert-${type}`;
     notification.innerHTML = `
         <span style="font-size: 1.25rem; margin-right: 0.5rem;">
             ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
         </span>
-        ${message}
+        <span style="flex: 1;">${message}</span>
+        <button onclick="closeNotification('${notificationId}')" style="
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 1rem;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+            ×
+        </button>
     `;
     notification.style.position = 'fixed';
     notification.style.top = '80px';
     notification.style.right = '20px';
     notification.style.zIndex = '1001';
     notification.style.minWidth = '300px';
+    notification.style.maxWidth = '500px';
     notification.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
     notification.style.animation = 'slideInRight 0.3s ease';
+    notification.style.display = 'flex';
+    notification.style.alignItems = 'center';
     
     document.body.appendChild(notification);
     
@@ -194,14 +215,32 @@ function showNotification(message, type = 'info') {
         notification.style.opacity = '1';
     }, 10);
     
-    // Remove after 5 seconds
-    setTimeout(() => {
+    // Auto-remove after 10 seconds (increased from 5)
+    const autoRemoveTimeout = setTimeout(() => {
+        closeNotification(notificationId);
+    }, 10000);
+    
+    // Store timeout ID on the element so we can clear it if manually closed
+    notification.dataset.timeoutId = autoRemoveTimeout;
+}
+
+// Function to close notification
+function closeNotification(notificationId) {
+    const notification = document.getElementById(notificationId);
+    if (notification) {
+        // Clear the auto-remove timeout
+        if (notification.dataset.timeoutId) {
+            clearTimeout(parseInt(notification.dataset.timeoutId));
+        }
+        
         notification.style.opacity = '0';
         notification.style.transform = 'translateX(20px)';
         setTimeout(() => {
-            document.body.removeChild(notification);
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
         }, 300);
-    }, 5000);
+    }
 }
 
 // Add keyboard shortcuts

@@ -1,0 +1,139 @@
+<%- include('partials/header', { 
+    pageTitle: 'MockERP Pro - Products Management',
+    activePage: 'products',
+    showStatus: true,
+    config: config
+}) %>
+        <% if (message) { %>
+        <div class="alert alert-success">
+            <%= message %>
+        </div>
+        <% } %>
+
+        <section class="controls-section">
+            <h2>📦 Product Management Dashboard</h2>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                Products received from Alchemy Cloud
+            </div>
+        </section>
+
+        <div class="info-section" style="margin-bottom: 2rem;">
+            <h3>🔗 How to Send Products from Alchemy</h3>
+            <p>Use the following endpoint to send product data from Alchemy to this system:</p>
+            <div style="background: var(--dark-bg); color: var(--secondary-color); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <code>POST http://localhost:3000/api/products/receive</code>
+            </div>
+            <p><strong>Required fields:</strong> Code, ProductName, RecordID</p>
+            <p><strong>Optional fields:</strong> Family, Subfamily, SKU, CreatedOn, ProductStatus</p>
+        </div>
+
+        <% if (products.length === 0) { %>
+        <div class="materials-section" style="padding: 3rem; text-align: center;">
+            <p style="font-size: 1.125rem; color: var(--text-secondary);">No products received yet.</p>
+            <p style="color: var(--text-muted);">Products sent from Alchemy will appear here.</p>
+        </div>
+        <% } else { %>
+        <section class="materials-section">
+            <table class="materials-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Product Name</th>
+                        <th>Family</th>
+                        <th>Subfamily</th>
+                        <th>SKU</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% products.forEach(product => { %>
+                    <tr data-product-id="<%= product.RecordID %>">
+                        <td style="font-weight: 600;"><%= product.Code %></td>
+                        <td><%= product.ProductName %></td>
+                        <td><span class="badge badge-category"><%= product.Family %></span></td>
+                        <td><%= product.Subfamily %></td>
+                        <td><%= product.SKU %></td>
+                        <td>
+                            <span class="badge badge-status <%= product.ProductStatus === 'Active' ? 'active' : '' %>">
+                                <%= product.ProductStatus %>
+                            </span>
+                        </td>
+                        <td style="font-size: 0.875rem;">
+                            <%= new Date(product.CreatedOn).toLocaleDateString() %>
+                        </td>
+                        <td>
+                            <a href="<%= product.AlchemyURL %>" target="_blank" class="btn btn-sm btn-view">
+                                👁️ View in Alchemy
+                            </a>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct('<%= product.RecordID %>')">
+                                🗑️ Delete
+                            </button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </section>
+        <% } %>
+
+        <div class="info-section">
+            <h3>📊 About Product Integration</h3>
+            <p>This page displays products that have been sent from Alchemy Cloud to MockERP. 
+               Unlike materials which are transferred TO Alchemy, products flow FROM Alchemy to this system.</p>
+            <p><strong>Integration features:</strong></p>
+            <ul>
+                <li>Receives product data via REST API endpoint</li>
+                <li>Stores product metadata including Code, Name, Family, and SKU</li>
+                <li>Maintains links back to original Alchemy records</li>
+                <li>Supports real-time updates when products are re-sent</li>
+                <li>Tracks when each product was received</li>
+            </ul>
+            <p style="margin-top: 1rem;"><strong>Example API call from Alchemy:</strong></p>
+            <div style="background: var(--light-bg); padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.875rem;">
+                <pre style="margin: 0;">{
+  "Code": "PROD-12345",
+  "ProductName": "Example Product",
+  "Family": "Polymers",
+  "Subfamily": "Thermoplastics",
+  "SKU": "SKU-001",
+  "CreatedOn": "2024-01-15T10:30:00Z",
+  "ProductStatus": "Active",
+  "RecordID": "abc123def456"
+}</pre>
+            </div>
+        </div>
+
+<script>
+// Delete product
+async function deleteProduct(recordId) {
+    if (!confirm('Are you sure you want to delete this product?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/delete-product/${recordId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showNotification('Product deleted successfully!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            throw new Error(data.message || 'Delete failed');
+        }
+    } catch (error) {
+        showNotification(`Delete failed: ${error.message}`, 'error');
+    }
+}
+</script>
+
+<%- include('partials/footer', {
+    connectionStatus: config.configured ? 'Connected' : 'Not Connected'
+}) %>

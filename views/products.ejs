@@ -23,8 +23,10 @@
             <div style="background: var(--dark-bg); color: var(--secondary-color); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
                 <code>POST http://localhost:3000/api/products/receive</code>
             </div>
-            <p><strong>Required fields:</strong> Code, ProductName, RecordID</p>
-            <p><strong>Optional fields:</strong> Family, Subfamily, SKU, CreatedOn, ProductStatus</p>
+            <div style="margin-top: 1rem;">
+                <p><strong>Required fields:</strong> Code, ProductName, RecordID</p>
+                <p><strong>Optional fields:</strong> Family, Subfamily, SKU, CreatedOn, ProductStatus, Tenant</p>
+            </div>
         </div>
 
         <% if (products.length === 0) { %>
@@ -100,7 +102,8 @@
   "SKU": "SKU-001",
   "CreatedOn": "2024-01-15T10:30:00Z",
   "ProductStatus": "Active",
-  "RecordID": "abc123def456"
+  "RecordID": "abc123def456",
+  "Tenant": "productcaseelnlims"
 }</pre>
             </div>
         </div>

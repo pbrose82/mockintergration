@@ -89,10 +89,12 @@
       </ol>
       <p><strong>Additional Features:</strong></p>
       <ul>
+        <li><strong>🧪 Materials</strong> - Transfer materials FROM this system TO Alchemy</li>
+        <li><strong>📦 Products</strong> - Receive products FROM Alchemy TO this system</li>
         <li><strong>🔄 Quick Change Tenant</strong> - Switch between tenants without re-entering credentials</li>
         <li><strong>🗑️ Clear Stored Token</strong> - Force re-authentication on next API call</li>
         <li><strong>↩️ Revert Materials</strong> - Reset transferred materials back to pending status</li>
-        <li><strong>🗑️ Delete Materials</strong> - Remove materials from the system</li>
+        <li><strong>🗑️ Delete Records</strong> - Remove materials or products from the system</li>
       </ul>
     </div>
   </div>
@@ -114,7 +116,7 @@
       </div>
       <div class="stat-item">
         <h4>📤 Data Flow</h4>
-        <p>One-way (ERP → Alchemy)</p>
+        <p>Bi-directional</p>
       </div>
     </div>
   </div>
@@ -128,6 +130,8 @@
       <li>Includes error handling and retry logic</li>
       <li>Provides direct links to created materials in Alchemy</li>
       <li>Supports multiple tenants through configuration</li>
+      <li><strong>NEW:</strong> Receives product data from Alchemy via REST API</li>
+      <li><strong>NEW:</strong> Bi-directional data flow (Materials → Alchemy, Products ← Alchemy)</li>
     </ul>
   </div>
 </section>

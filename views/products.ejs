@@ -72,7 +72,7 @@
             <h3>🔗 How to Send Products from Alchemy</h3>
             <p>Use the following endpoint to send product data from Alchemy to this system:</p>
             <div style="background: var(--dark-bg); color: var(--secondary-color); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-                <code>POST {YOURURL}/api/products/receive</code>
+                <code>POST http://localhost:3000/api/products/receive</code>
             </div>
             <p><strong>Required fields:</strong> Code, ProductName, RecordID</p>
             <p><strong>Optional fields:</strong> Family, Subfamily, SKU, CreatedOn, ProductStatus, Tenant</p>
@@ -127,10 +127,17 @@ async function deleteProduct(recordId) {
             showNotification('Product deleted successfully!', 'success');
             setTimeout(() => location.reload(), 1000);
         } else {
-            throw new Error(data.message || 'Delete failed');
+            throw new Error(data.message || 'Failed to delete product');
         }
     } catch (error) {
-        showNotification(`Delete failed: ${error.message}`, 'error');
+        // Check if it's a network error or parsing error
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            showNotification('Network error: Could not connect to server', 'error');
+        } else if (error.message.includes('JSON')) {
+            showNotification('Server error: Invalid response format', 'error');
+        } else {
+            showNotification(error.message, 'error');
+        }
     }
 }
 </script>

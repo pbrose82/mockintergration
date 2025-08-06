@@ -341,6 +341,13 @@ main {
     font-size: 0.875rem;
 }
 
+/* Form actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
 /* Enhanced table design */
 .materials-section {
     overflow: hidden;
@@ -593,6 +600,14 @@ main {
     align-items: center;
     gap: 0.75rem;
     font-weight: 500;
+    position: relative;
+}
+
+/* Server-rendered alerts need special handling for close button */
+#serverMessage {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .alert-success {
@@ -789,6 +804,11 @@ pre {
     height: 64px;
     margin-bottom: 1rem;
     opacity: 0.3;
+}
+
+/* Text utilities */
+.text-muted {
+    color: var(--text-muted);
 }
 
 .close {

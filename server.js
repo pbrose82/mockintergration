@@ -78,25 +78,25 @@ async function getAlchemyToken() {
 app.get('/', (req, res) => {
     res.render('index', {
         materials: mockMaterials,
-        message: req.session.message || null,
+        message: req.session.materialMessage || null,
         config: {
             tenant: appConfig.tenant,
             configured: !!(appConfig.email && appConfig.password)
         }
     });
-    req.session.message = null;
+    req.session.materialMessage = null;
 });
 
 app.get('/products', (req, res) => {
     res.render('products', {
         products: mockProducts,
-        message: req.session.message || null,
+        message: req.session.productMessage || null,
         config: {
             tenant: appConfig.tenant,
             configured: !!(appConfig.email && appConfig.password)
         }
     });
-    req.session.message = null;
+    req.session.productMessage = null;
 });
 
 app.get('/admin', (req, res) => {
@@ -243,21 +243,29 @@ app.post('/api/add-material', (req, res) => {
     };
     
     mockMaterials.push(newMaterial);
-    req.session.message = `Material "${tradeName}" added successfully!`;
+    req.session.materialMessage = `Material "${tradeName}" added successfully!`;
     res.redirect('/');
 });
 
 // Delete product
 app.delete('/api/delete-product/:recordId', (req, res) => {
     const { recordId } = req.params;
+    console.log('Delete request for product with RecordID:', recordId);
+    console.log('Current products:', mockProducts.map(p => ({ RecordID: p.RecordID, Code: p.Code })));
+    
     const index = mockProducts.findIndex(p => p.RecordID === recordId);
     if (index === -1) {
+        console.log('Product not found with RecordID:', recordId);
         return res.status(404).json({ 
             success: false, 
             message: 'Product not found' 
         });
     }
+    
+    const deletedProduct = mockProducts[index];
     mockProducts.splice(index, 1);
+    console.log('Deleted product:', deletedProduct.Code);
+    
     res.json({ success: true, message: 'Product deleted successfully' });
 });
 

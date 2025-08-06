@@ -336,10 +336,17 @@ async function deleteMaterial(materialId) {
             showNotification('Material deleted successfully!', 'success');
             setTimeout(() => location.reload(), 1000);
         } else {
-            throw new Error(data.message || 'Delete failed');
+            throw new Error(data.message || 'Failed to delete material');
         }
     } catch (error) {
-        showNotification(`Delete failed: ${error.message}`, 'error');
+        // Check if it's a network error or parsing error
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            showNotification('Network error: Could not connect to server', 'error');
+        } else if (error.message.includes('JSON')) {
+            showNotification('Server error: Invalid response format', 'error');
+        } else {
+            showNotification(error.message, 'error');
+        }
     }
 }
 
@@ -363,17 +370,31 @@ async function revertMaterial(materialId) {
             showNotification('Material reverted to pending status!', 'success');
             setTimeout(() => location.reload(), 1000);
         } else {
-            throw new Error(data.message || 'Revert failed');
+            throw new Error(data.message || 'Failed to revert material');
         }
     } catch (error) {
-        showNotification(`Revert failed: ${error.message}`, 'error');
+        // Check if it's a network error or parsing error
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            showNotification('Network error: Could not connect to server', 'error');
+        } else if (error.message.includes('JSON')) {
+            showNotification('Server error: Invalid response format', 'error');
+        } else {
+            showNotification(error.message, 'error');
+        }
     }
 }
 
 
 function clearCredentials() {
-  fetch('/api/clear-credentials', { method: 'POST' })
-    .then(res => res.json())
-    .then(data => alert(data.message))
-    .catch(err => alert('Error clearing credentials: ' + err.message));
+    fetch('/api/clear-credentials', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification(data.message || 'Failed to clear credentials', 'error');
+            }
+        })
+        .catch(err => showNotification('Error clearing credentials: ' + err.message, 'error'));
 }

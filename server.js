@@ -251,9 +251,15 @@ app.post('/api/add-material', (req, res) => {
 app.delete('/api/delete-product/:recordId', (req, res) => {
     const { recordId } = req.params;
     console.log('Delete request for product with RecordID:', recordId);
-    console.log('Current products:', mockProducts.map(p => ({ RecordID: p.RecordID, Code: p.Code })));
+    console.log('Current products:', mockProducts.map(p => ({ RecordID: p.RecordID, Code: p.Code, type: typeof p.RecordID })));
     
-    const index = mockProducts.findIndex(p => p.RecordID === recordId);
+    // Convert recordId to both string and number for comparison
+    const index = mockProducts.findIndex(p => 
+        p.RecordID === recordId || 
+        p.RecordID === parseInt(recordId) || 
+        String(p.RecordID) === recordId
+    );
+    
     if (index === -1) {
         console.log('Product not found with RecordID:', recordId);
         return res.status(404).json({ 

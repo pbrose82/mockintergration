@@ -5,9 +5,37 @@
     config: config
 }) %>
         <% if (message) { %>
-        <div class="alert alert-success">
+        <div class="alert alert-success" id="serverMessage">
             <%= message %>
+            <button onclick="document.getElementById('serverMessage').style.display='none'" style="
+                background: none;
+                border: none;
+                color: inherit;
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 0;
+                margin-left: 1rem;
+                line-height: 1;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+                float: right;
+            " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+                ×
+            </button>
         </div>
+        <script>
+            // Auto-hide server message after 5 seconds
+            setTimeout(function() {
+                var msg = document.getElementById('serverMessage');
+                if (msg) {
+                    msg.style.opacity = '0';
+                    msg.style.transition = 'opacity 0.3s';
+                    setTimeout(function() {
+                        msg.style.display = 'none';
+                    }, 300);
+                }
+            }, 5000);
+        </script>
         <% } %>
 
         <section class="controls-section">

@@ -276,7 +276,10 @@ app.post('/api/revert-material/:id', (req, res) => {
     const { id } = req.params;
     const material = mockMaterials.find(m => m.id === id);
     if (!material) {
-        return res.status(404).json({ error: 'Material not found' });
+        return res.status(404).json({ 
+            success: false, 
+            message: 'Material not found' 
+        });
     }
     material.transferStatus = 'Pending';
     delete material.alchemyCode;
@@ -291,7 +294,10 @@ app.delete('/api/delete-material/:id', (req, res) => {
     const { id } = req.params;
     const index = mockMaterials.findIndex(m => m.id === id);
     if (index === -1) {
-        return res.status(404).json({ error: 'Material not found' });
+        return res.status(404).json({ 
+            success: false, 
+            message: 'Material not found' 
+        });
     }
     mockMaterials.splice(index, 1);
     res.json({ success: true, message: 'Material deleted successfully' });
@@ -313,6 +319,24 @@ app.post('/api/clear-credentials', (req, res) => {
     };
     authTokenCache = { token: null, expiry: null };
     res.json({ success: true, message: 'Credentials and token cleared.' });
+});
+
+app.post('/api/change-tenant', (req, res) => {
+    const { tenant } = req.body;
+    if (!tenant || !tenant.trim()) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Tenant name is required' 
+        });
+    }
+    
+    appConfig.tenant = tenant.trim();
+    authTokenCache = { token: null, expiry: null };
+    
+    res.json({ 
+        success: true, 
+        message: `Tenant changed to: ${appConfig.tenant}` 
+    });
 });
 
 app.post('/api/test-connection', async (req, res) => {

@@ -137,6 +137,8 @@
 <script>
 // Delete product
 async function deleteProduct(recordId) {
+    console.log('Attempting to delete product with RecordID:', recordId);
+    
     if (!confirm('Are you sure you want to delete this product?')) {
         return;
     }

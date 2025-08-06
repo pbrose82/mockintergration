@@ -252,7 +252,10 @@ app.delete('/api/delete-product/:recordId', (req, res) => {
     const { recordId } = req.params;
     const index = mockProducts.findIndex(p => p.RecordID === recordId);
     if (index === -1) {
-        return res.status(404).json({ error: 'Product not found' });
+        return res.status(404).json({ 
+            success: false, 
+            message: 'Product not found' 
+        });
     }
     mockProducts.splice(index, 1);
     res.json({ success: true, message: 'Product deleted successfully' });

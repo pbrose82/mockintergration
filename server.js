@@ -140,7 +140,7 @@ app.post('/api/transfer', async (req, res) => {
         });
 
         const materialId = createRes.data.materialId;
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         console.log(`Waiting before fetching Code for material ID ${materialId}`);
         if (!materialId) throw new Error('Alchemy did not return a materialId');
 
